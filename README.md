@@ -1,10 +1,12 @@
-# RecyclerView With ExoPlayer
+# RVPlayer - RecyclerView With ExoPlayer
+
+[![Build](https://github.com/paulo-coutinho/rvplayer/actions/workflows/android.yml/badge.svg)](https://github.com/paulo-coutinho/rvplayer/actions)
 
 This is a sample project that shows how to use ExoPlayer inside RecyclerView with multiple view holders.
 
 The objective is show the best practices to use less resources and play a single video using ExoPlayer inside a RecyclerView, since i see that a lot of people search for this.
 
-Any suggestions and question you can use "Issue" section on Github.
+Any suggestions and question you can use "issues" section on Github.
 
 ## Features
 
