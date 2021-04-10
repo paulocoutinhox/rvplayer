@@ -22,7 +22,7 @@ Any suggestions and question you can use "issues" section on Github.
 
 Demo application:
 
-![Demo application](extras/images/screenshot1.png)
+![Demo application](extras/images/5c22be91-d461-4827-a047-d44492ba3fe3.png)
 
 Resources usage (Moto G):
 
