@@ -11,7 +11,7 @@ import com.paulocoutinho.rvplayer.ui.viewholders.ImageViewHolder
 import com.paulocoutinho.rvplayer.ui.viewholders.VideoPlayerViewHolder
 import com.paulocoutinho.rvplayer.util.Logger
 
-class MyRecyclerAdapter(private val mediaObjects: ArrayList<MediaObject>) : RecyclerView.Adapter<ViewHolder>() {
+class RVPRecyclerAdapter(private val mediaObjects: ArrayList<MediaObject>) : RecyclerView.Adapter<ViewHolder>() {
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
         if (viewType == MediaObject.MediaType.IMAGE.ordinal) {
@@ -37,7 +37,7 @@ class MyRecyclerAdapter(private val mediaObjects: ArrayList<MediaObject>) : Recy
                 (viewHolder as VideoPlayerViewHolder).onBind(mediaObjects[i])
             }
             else -> {
-                Logger.e("[MyRecyclerAdapter : onBindViewHolder] Unknown type: $itemViewType")
+                Logger.e("[RVPRecyclerAdapter : onBindViewHolder] Unknown type: $itemViewType")
             }
         }
     }

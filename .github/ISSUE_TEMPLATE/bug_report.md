@@ -26,7 +26,7 @@ If applicable, add screenshots to help explain your problem.
 **System (please complete the following information):**
  - OS: [e.g. Android 9]
  - Language [e.g. Kotlin]
- - Component [e.g. MyRecyclerView]
+ - Component [e.g. RVPRecyclerView]
  
 **Additional context**
 Add any other context about the problem here.

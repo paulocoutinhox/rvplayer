@@ -9,9 +9,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.paulocoutinho.rvplayer.R
-import com.paulocoutinho.rvplayer.ui.adapters.MyRecyclerAdapter
+import com.paulocoutinho.rvplayer.ui.adapters.RVPRecyclerAdapter
 import com.paulocoutinho.rvplayer.ui.interfaces.FragmentLifecycle
-import com.paulocoutinho.rvplayer.ui.recyclerviews.MyRecyclerView
+import com.paulocoutinho.rvplayer.ui.recyclerviews.RVPRecyclerView
 import com.paulocoutinho.rvplayer.util.Logger
 import com.paulocoutinho.rvplayer.util.Resources
 import com.paulocoutinho.rvplayer.util.VerticalSpacingItemDecorator
@@ -19,8 +19,8 @@ import java.util.*
 
 class ListFragment : Fragment(), FragmentLifecycle {
 
-    private var list: MyRecyclerView? = null
-    private var adapter: MyRecyclerAdapter? = null
+    private var list: RVPRecyclerView? = null
+    private var adapter: RVPRecyclerAdapter? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -51,7 +51,7 @@ class ListFragment : Fragment(), FragmentLifecycle {
         val mediaObjects = ArrayList(listOf(*Resources.MEDIA_OBJECTS))
         list?.setListObjects(mediaObjects)
 
-        adapter = MyRecyclerAdapter(mediaObjects)
+        adapter = RVPRecyclerAdapter(mediaObjects)
         list?.adapter = adapter
     }
 
@@ -63,10 +63,10 @@ class ListFragment : Fragment(), FragmentLifecycle {
 
     override fun onResumeFragment() {
         Logger.d("[ListFragment : onResumeFragment]")
-        list?.initializeVideoSurfaceView()
+        list?.onInitializeVideoSurfaceView()
 
         Handler(Looper.getMainLooper()).post {
-            list?.playFirstVideo(false)
+            list?.playFirstAvailable(false)
         }
     }
 
