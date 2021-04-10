@@ -14,7 +14,7 @@ Any suggestions and question you can use "issues" section on Github.
 2. Multiple view holders (video and image)
 3. ExoPlayer latest version
 4. Low resources usage (memory and CPU)
-5. Easy to extend and understand
+5. Easy to extend and understand (only need inherited our RecyclerView class and override methods)
 6. Single video playing
 7. Multiple pages inside ViewPager2 with video
 
@@ -22,7 +22,7 @@ Any suggestions and question you can use "issues" section on Github.
 
 Demo application:
 
-![Demo application](extras/images/5c22be91-d461-4827-a047-d44492ba3fe3.png)
+![Demo application](extras/images/dc9aa57c-709b-4c14-8b61-8aea9190acfb.png)
 
 Resources usage (Moto G):
 

@@ -8,7 +8,7 @@ object Resources {
             MediaObject(
                     "Video for test - One",
                     "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
-                    "https://dummyimage.com/600x480/E0E0E0/000000.png",
+                    "https://dummyimage.com/600x480/E0E0E0/000000.png?text=THUMBNAIL",
                     "Description for media object #1",
                     MediaObject.MediaType.VIDEO,
             ),
@@ -24,7 +24,7 @@ object Resources {
             MediaObject(
                     "Video for test - Two",
                     "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
-                    "https://dummyimage.com/600x480/E0E0E0/000000.png",
+                    "https://dummyimage.com/600x480/E0E0E0/000000.png?text=THUMBNAIL",
                     "Description for media object #3",
                     MediaObject.MediaType.VIDEO,
             ),
@@ -40,7 +40,7 @@ object Resources {
             MediaObject(
                     "Video for test - Three",
                     "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
-                    "https://dummyimage.com/600x480/E0E0E0/000000.png",
+                    "https://dummyimage.com/600x480/E0E0E0/000000.png?text=THUMBNAIL",
                     "Description for media object #5",
                     MediaObject.MediaType.VIDEO,
             ),
@@ -56,7 +56,7 @@ object Resources {
             MediaObject(
                     "Video for test - Four",
                     "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
-                    "https://dummyimage.com/600x480/E0E0E0/000000.png",
+                    "https://dummyimage.com/600x480/E0E0E0/000000.png?text=THUMBNAIL",
                     "Description for media object #7",
                     MediaObject.MediaType.VIDEO,
             ),
@@ -72,7 +72,7 @@ object Resources {
             MediaObject(
                     "Video for test - Five",
                     "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
-                    "https://dummyimage.com/600x480/E0E0E0/000000.png",
+                    "https://dummyimage.com/600x480/E0E0E0/000000.png?text=THUMBNAIL",
                     "Description for media object #9",
                     MediaObject.MediaType.VIDEO,
             ),
