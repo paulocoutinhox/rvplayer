@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.exoplayer2.ui.PlayerView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/videoPlayerView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:auto_show="true"
+    app:fastforward_increment="10000"
+    app:hide_on_touch="false"
+    app:repeat_toggle_modes="none"
+    app:resize_mode="fixed_width"
+    app:rewind_increment="10000"
+    app:show_timeout="0"
+    app:surface_type="texture_view"
+    app:use_controller="false" />
+
+
+
+
+
