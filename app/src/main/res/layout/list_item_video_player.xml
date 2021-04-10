@@ -58,9 +58,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@color/grey_300"
-                    android:scaleType="center"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent">
+                    android:scaleType="center">
 
                 </FrameLayout>
 
@@ -68,9 +66,7 @@
                     android:id="@+id/videoControlsContainer"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="#00000000"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent">
+                    android:background="#00000000">
 
                     <ImageView
                         android:id="@+id/videoPlayerThumbnail"

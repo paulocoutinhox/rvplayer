@@ -1,17 +1,20 @@
 package com.paulocoutinho.rvplayer.ui.adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import com.paulocoutinho.rvplayer.BuildConfig
 import com.paulocoutinho.rvplayer.R
 import com.paulocoutinho.rvplayer.models.MediaObject
 import com.paulocoutinho.rvplayer.ui.viewholders.EmptyViewHolder
 import com.paulocoutinho.rvplayer.ui.viewholders.ImageViewHolder
 import com.paulocoutinho.rvplayer.ui.viewholders.VideoPlayerViewHolder
-import com.paulocoutinho.rvplayer.util.Logger
 
 class RVPRecyclerAdapter(private val mediaObjects: ArrayList<MediaObject>) : RecyclerView.Adapter<ViewHolder>() {
+
+    private val className = javaClass.simpleName
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
         if (viewType == MediaObject.MediaType.IMAGE.ordinal) {
@@ -37,7 +40,7 @@ class RVPRecyclerAdapter(private val mediaObjects: ArrayList<MediaObject>) : Rec
                 (viewHolder as VideoPlayerViewHolder).onBind(mediaObjects[i])
             }
             else -> {
-                Logger.e("[RVPRecyclerAdapter : onBindViewHolder] Unknown type: $itemViewType")
+                logError("[RVPRecyclerAdapter : onBindViewHolder] Unknown type: $itemViewType")
             }
         }
     }
@@ -49,5 +52,11 @@ class RVPRecyclerAdapter(private val mediaObjects: ArrayList<MediaObject>) : Rec
 
     override fun getItemCount(): Int {
         return mediaObjects.size
+    }
+
+    private fun logError(message: String) {
+        if (BuildConfig.DEBUG) {
+            Log.e(className, message)
+        }
     }
 }
