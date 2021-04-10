@@ -56,22 +56,22 @@ class ListFragment : Fragment(), FragmentLifecycle {
 
     override fun onDestroy() {
         Logger.d("[ListFragment : onDestroy]")
-        list?.stopAndResetPlayer()
+        list?.videoPlayerStopAndReset()
         super.onDestroy()
     }
 
     override fun onResumeFragment() {
         Logger.d("[ListFragment : onResumeFragment]")
-        list?.initializeVideoPlayerSurfaceView()
+        list?.videoPlayerInitializeSurfaceView()
 
         Handler(Looper.getMainLooper()).post {
-            list?.playFirstAvailable(false)
+            list?.videoPlayerPlayFirstAvailable(false)
         }
     }
 
     override fun onPauseFragment() {
         Logger.d("[ListFragment : onPauseFragment]")
-        list?.stopAndResetPlayer()
+        list?.videoPlayerStopAndReset()
     }
 
     companion object {

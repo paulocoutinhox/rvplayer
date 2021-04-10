@@ -86,7 +86,8 @@
                         android:id="@+id/videoControlsBackground"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="#99000000" />
+                        android:background="#99000000"
+                        android:visibility="gone" />
 
                     <ImageView
                         android:id="@+id/videoPlayerVolumeControl"
@@ -100,7 +101,7 @@
                         android:background="@drawable/video_player_inset_padding_background"
                         android:contentDescription="@string/app_name"
                         android:padding="10dp"
-                        android:src="@drawable/ic_volume_on" />
+                        android:src="@drawable/ic_video_player_volume_on" />
 
                     <ProgressBar
                         android:id="@+id/videoPlayerProgressBar"

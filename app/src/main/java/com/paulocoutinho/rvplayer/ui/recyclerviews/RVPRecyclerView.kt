@@ -1,5 +1,6 @@
 package com.paulocoutinho.rvplayer.ui.recyclerviews
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Rect
 import android.util.AttributeSet
@@ -27,11 +28,18 @@ import com.paulocoutinho.rvplayer.models.MediaObject
 import com.paulocoutinho.rvplayer.ui.viewholders.VideoPlayerViewHolder
 import com.paulocoutinho.rvplayer.util.Logger
 
+@Suppress("unused")
 open class RVPRecyclerView : RecyclerView {
 
     enum class VolumeState {
         ON, OFF
     }
+
+    open val videoPlayerComponentLayout: Int = R.layout.rvp_video_player
+    open val videoPlayerDrawableVolumeOn: Int = R.drawable.ic_video_player_volume_on
+    open val videoPlayerDrawableVolumeOff: Int = R.drawable.ic_video_player_volume_off
+
+    private val className = javaClass.simpleName
 
     private var videoPlayerThumbnail: ImageView? = null
     private var videoPlayerVolumeControl: ImageView? = null
@@ -52,17 +60,17 @@ open class RVPRecyclerView : RecyclerView {
     private var volumeState: VolumeState? = null
 
     private val viewHolderClickListener = OnClickListener {
-        Logger.d("[RVPRecyclerView : ViewHolderClickListener]")
+        Logger.d("[$className : ViewHolderClickListener]")
         onViewHolderClick()
     }
 
     private val videoPlayerSurfaceViewClickListener = OnClickListener {
-        Logger.d("[RVPRecyclerView : VideoPlayerSurfaceViewClickListener]")
+        Logger.d("[$className : VideoPlayerSurfaceViewClickListener]")
         onVideoPlayerSurfaceViewClick()
     }
 
     private val videoPlayerThumbnailClickListener = OnClickListener {
-        Logger.d("[RVPRecyclerView : VideoPlayerThumbnailClickListener]")
+        Logger.d("[$className : VideoPlayerThumbnailClickListener]")
         onVideoPlayerThumbnailClick()
     }
 
@@ -75,55 +83,55 @@ open class RVPRecyclerView : RecyclerView {
     }
 
     private fun init() {
-        Logger.d("[RVPRecyclerView : init]")
+        Logger.d("[$className : init]")
 
         if (Application.instance.videoPlayer == null) {
-            throw Exception("You need initialize VideoPlayer first")
+            throw Exception("[$className : init] You need initialize VideoPlayer first")
         }
 
         videoPlayer = Application.instance.videoPlayer
 
-        onInitializeVideoPlayerSurfaceView()
-        onChangeVolumeControl(VolumeState.ON)
+        onVideoPlayerInitializeSurfaceView()
+        onVideoPlayerChangeVolumeControl(VolumeState.ON)
 
         addOnScrollListener(object : OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
 
                 if (newState == SCROLL_STATE_IDLE) {
-                    Logger.d("[RVPRecyclerView : onScrollStateChanged] New state: $newState")
-                    playFirstAvailable(false)
+                    Logger.d("[$className : onScrollStateChanged] New state: $newState")
+                    videoPlayerPlayFirstAvailable(false)
                 }
             }
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
 
-                Logger.d("[RVPRecyclerView : onScrolled]")
+                Logger.d("[$className : onScrolled]")
 
                 if (firstScroll) {
-                    Logger.d("[RVPRecyclerView : onScrolled] First scroll")
+                    Logger.d("[$className : onScrolled] First scroll")
 
                     firstScroll = false
-                    playFirstAvailable(false)
+                    videoPlayerPlayFirstAvailable(false)
                 } else {
-                    Logger.d("[RVPRecyclerView : onScrolled] Ignored")
+                    Logger.d("[$className : onScrolled] Ignored")
                 }
             }
         })
 
         videoPlayer?.addListener(object : Player.EventListener {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-                Logger.d("[RVPRecyclerView : onPlayerStateChanged] State: $playbackState, PlayWhenReady: $playWhenReady")
+                Logger.d("[$className : onPlayerStateChanged] State: $playbackState, PlayWhenReady: $playWhenReady")
 
                 when (playbackState) {
                     Player.STATE_BUFFERING -> {
-                        Logger.d("[RVPRecyclerView : onPlayerStateChanged] Buffering video")
+                        Logger.d("[$className : onPlayerStateChanged] Buffering video")
                         onVideoPlayerStateIsBuffering()
                     }
 
                     Player.STATE_ENDED -> {
-                        Logger.d("[RVPRecyclerView : onPlayerStateChanged] Video ended")
+                        Logger.d("[$className : onPlayerStateChanged] Video ended")
                         onVideoPlayerStateIsEnded()
                     }
 
@@ -132,7 +140,7 @@ open class RVPRecyclerView : RecyclerView {
                     }
 
                     Player.STATE_READY -> {
-                        Logger.d("[RVPRecyclerView : onPlayerStateChanged] Ready to play")
+                        Logger.d("[$className : onPlayerStateChanged] Ready to play")
                         onVideoPlayerStateIsReady()
                     }
 
@@ -144,18 +152,18 @@ open class RVPRecyclerView : RecyclerView {
 
             override fun onPlayerError(error: ExoPlaybackException) {
                 super.onPlayerError(error)
-                Logger.d("[RVPRecyclerView : onPlayerError] Error: ${error.message}")
+                Logger.d("[$className : onPlayerError] Error: ${error.message}")
                 onVideoPlayerStateIsError(error)
             }
         })
     }
 
     private fun removeVideoView(videoView: PlayerView?) {
-        Logger.d("[RVPRecyclerView : removeVideoView] Checking parent...")
+        Logger.d("[$className : removeVideoView] Checking parent...")
 
         val parent = videoView?.parent as? ViewGroup ?: return
 
-        Logger.d("[RVPRecyclerView : removeVideoView] Parent is OK")
+        Logger.d("[$className : removeVideoView] Parent is OK")
 
         val index = parent.indexOfChild(videoView)
 
@@ -167,17 +175,17 @@ open class RVPRecyclerView : RecyclerView {
             isVideoViewAdded = false
             viewHolderParent?.setOnClickListener(null)
 
-            Logger.d("[RVPRecyclerView : removeVideoView] Removed")
+            Logger.d("[$className : removeVideoView] Removed")
         } else {
-            Logger.d("[RVPRecyclerView : removeVideoView] Not removed")
+            Logger.d("[$className : removeVideoView] Not removed")
         }
     }
 
     private fun addVideoView() {
-        Logger.d("[RVPRecyclerView : addVideoView]")
+        Logger.d("[$className : addVideoView]")
 
         if (videoPlayerSurfaceView == null) {
-            Logger.d("[RVPRecyclerView : addVideoView] Cannot add video view because VideoPlayerSurfaceView is null")
+            Logger.d("[$className : addVideoView] Cannot add video view because VideoPlayerSurfaceView is null")
             return
         }
 
@@ -194,7 +202,7 @@ open class RVPRecyclerView : RecyclerView {
     }
 
     private fun resetVideoView(force: Boolean) {
-        Logger.d("[RVPRecyclerView : resetVideoView]")
+        Logger.d("[$className : resetVideoView]")
 
         if (isVideoViewAdded || force) {
             removeVideoView(videoPlayerSurfaceView)
@@ -208,21 +216,21 @@ open class RVPRecyclerView : RecyclerView {
     }
 
     private fun toggleVolume() {
-        Logger.d("[RVPRecyclerView : toggleVolume]")
+        Logger.d("[$className : toggleVolume]")
 
         if (videoPlayer != null) {
-            if (volumeState == VolumeState.OFF) {
-                Logger.d("[RVPRecyclerView : toggleVolume] Enabling volume")
-                onChangeVolumeControl(VolumeState.ON)
-            } else if (volumeState == VolumeState.ON) {
-                Logger.d("[RVPRecyclerView : toggleVolume] Disabling volume")
-                onChangeVolumeControl(VolumeState.OFF)
+            if (volumeState == VolumeState.ON) {
+                Logger.d("[$className : toggleVolume] Disabling volume")
+                onVideoPlayerChangeVolumeControl(VolumeState.OFF)
+            } else if (volumeState == VolumeState.OFF) {
+                Logger.d("[$className : toggleVolume] Enabling volume")
+                onVideoPlayerChangeVolumeControl(VolumeState.ON)
             }
         }
     }
 
     private fun getVisibleHeightPercentage(view: View): Double {
-        Logger.d("[RVPRecyclerView : getVisibleHeightPercentage]")
+        Logger.d("[$className : getVisibleHeightPercentage]")
 
         val itemRect = Rect()
         val isParentViewEmpty = view.getLocalVisibleRect(itemRect)
@@ -240,7 +248,7 @@ open class RVPRecyclerView : RecyclerView {
     }
 
     private fun playVideo(position: Int) {
-        Logger.d("[RVPRecyclerView : playVideo] Position: $position")
+        Logger.d("[$className : playVideo] Position: $position")
 
         // video is already playing so return
         if (position == playPosition) {
@@ -265,12 +273,12 @@ open class RVPRecyclerView : RecyclerView {
         val holder = child.tag as? VideoPlayerViewHolder
 
         if (holder == null) {
-            Logger.d("[RVPRecyclerView : playVideo] Holder is not video player")
+            Logger.d("[$className : playVideo] Holder is not video player")
             playPosition = -1
             return
         }
 
-        Logger.d("[RVPRecyclerView : playVideo] Holder is video player")
+        Logger.d("[$className : playVideo] Holder is video player")
 
         videoPlayerThumbnail = holder.videoPlayerThumbnail
 
@@ -285,7 +293,7 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayerSurfaceView?.player = videoPlayer
         videoPlayerSurfaceView?.setOnClickListener(videoPlayerSurfaceViewClickListener)
 
-        val mediaSource = onBuildMediaSource(listObjects[playPosition])
+        val mediaSource = onVideoPlayerBuildMediaSource(listObjects[playPosition])
 
         videoPlayer?.setMediaSource(mediaSource)
         videoPlayer?.prepare()
@@ -293,28 +301,48 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayer?.playWhenReady = true
     }
 
-    fun releasePlayer() {
-        Logger.d("[RVPRecyclerView : releasePlayer]")
-        onPlayerRelease()
-    }
-
-    open fun initializeVideoPlayerSurfaceView() {
-        Logger.d("[RVPRecyclerView : initializeVideoPlayerSurfaceView]")
-        onInitializeVideoPlayerSurfaceView()
-    }
-
-    fun stopAndResetPlayer() {
-        Logger.d("[RVPRecyclerView : stopAndResetPlayer]")
-        onPlayerStopAndReset()
+    open fun videoPlayerInitializeSurfaceView() {
+        Logger.d("[$className : videoPlayerInitializeSurfaceView]")
+        onVideoPlayerInitializeSurfaceView()
     }
 
     fun setListObjects(objects: ArrayList<MediaObject>) {
-        Logger.d("[RVPRecyclerView : setListObjects]")
+        Logger.d("[$className : setListObjects]")
         listObjects = objects
     }
 
-    fun playFirstAvailable(force: Boolean) {
-        Logger.d("[RVPRecyclerView : playFirstAvailable]")
+    fun videoPlayerRelease() {
+        Logger.d("[$className : videoPlayerRelease]")
+        onVideoPlayerRelease()
+    }
+
+    fun videoPlayerStop() {
+        Logger.d("[$className : videoPlayerStop]")
+        onVideoPlayerStop()
+    }
+
+    fun videoPlayerPause() {
+        Logger.d("[$className : videoPlayerPause]")
+        onVideoPlayerPause()
+    }
+
+    fun videoPlayerPlay() {
+        Logger.d("[$className : videoPlayerPlay]")
+        onVideoPlayerPlay()
+    }
+
+    fun videoPlayerRestart() {
+        Logger.d("[$className : videoPlayerRestart]")
+        onVideoPlayerRestart()
+    }
+
+    fun videoPlayerStopAndReset() {
+        Logger.d("[$className : videoPlayerStopAndReset]")
+        onVideoPlayerStopAndReset()
+    }
+
+    fun videoPlayerPlayFirstAvailable(force: Boolean) {
+        Logger.d("[$className : videoPlayerPlayFirstAvailable]")
 
         val lm = (layoutManager as LinearLayoutManager)
 
@@ -332,41 +360,46 @@ open class RVPRecyclerView : RecyclerView {
             (viewHolder as? VideoPlayerViewHolder)?.let { vh ->
                 val percentage = getVisibleHeightPercentage(vh.itemView)
 
-                Logger.d("[RVPRecyclerView : playFirstVideo] Position: $pos, Percentage: $percentage")
+                Logger.d("[$className : playFirstVideo] Position: $pos, Percentage: $percentage")
 
                 if (percentage > 60.0 || force) {
                     if (first100percent) {
-                        Logger.d("[RVPRecyclerView : playFirstVideo] Option: First 100%")
-                        onPlayerReset(vh)
+                        Logger.d("[$className : playFirstVideo] Option: First 100%")
+                        onVideoPlayerReset(vh)
                     } else {
-                        Logger.d("[RVPRecyclerView : playFirstVideo] Option: Not first 100%")
+                        Logger.d("[$className : playFirstVideo] Option: Not first 100%")
                         first100percent = true
-                        onPlayFirstAvailable(pos)
+                        onVideoPlayerPlayFirstAvailable(pos)
                     }
                 } else {
-                    Logger.d("[RVPRecyclerView : playFirstVideo] Option: Nothing")
-                    onPlayerReset(vh)
+                    Logger.d("[$className : playFirstVideo] Option: Nothing")
+                    onVideoPlayerReset(vh)
                 }
             }
         }
     }
 
-    open fun onInitializeVideoPlayerSurfaceView() {
-        Logger.d("[RVPRecyclerView : onInitializeVideoPlayerSurfaceView]")
+    @SuppressLint("InflateParams")
+    open fun onVideoPlayerInitializeSurfaceView() {
+        Logger.d("[$className : onVideoPlayerInitializeSurfaceView]")
 
         if (videoPlayerSurfaceView == null) {
-            videoPlayerSurfaceView = LayoutInflater.from(context).inflate(R.layout.rvp_video_player, null, false) as PlayerView
+            videoPlayerSurfaceView = LayoutInflater.from(context).inflate(
+                videoPlayerComponentLayout,
+                null,
+                false,
+            ) as PlayerView
         }
 
         videoPlayer = Application.instance.videoPlayer
     }
 
     open fun onVideoPlayerStateIsIdle() {
-        Logger.d("[RVPRecyclerView : onPlayerStateIsIdle]")
+        Logger.d("[$className : onVideoPlayerStateIsIdle]")
     }
 
     open fun onVideoPlayerStateIsReady() {
-        Logger.d("[RVPRecyclerView : onPlayerStateIsReady]")
+        Logger.d("[$className : onVideoPlayerStateIsReady]")
 
         if (!isVideoViewAdded) {
             addVideoView()
@@ -377,47 +410,68 @@ open class RVPRecyclerView : RecyclerView {
     }
 
     open fun onVideoPlayerStateIsBuffering() {
-        Logger.d("[RVPRecyclerView : onPlayerStateIsBuffering]")
+        Logger.d("[$className : onVideoPlayerStateIsBuffering]")
 
         videoPlayerProgressBar?.visibility = VISIBLE
         videoPlayerThumbnail?.visibility = GONE
     }
 
     open fun onVideoPlayerStateIsEnded() {
-        Logger.d("[RVPRecyclerView : onPlayerStateIsEnded]")
+        Logger.d("[$className : onVideoPlayerStateIsEnded]")
         resetVideoView(true)
     }
 
     open fun onVideoPlayerStateIsError(error: ExoPlaybackException) {
-        Logger.d("[RVPRecyclerView : onPlayerStateIsError]")
+        Logger.d("[$className : onVideoPlayerStateIsError]")
         resetVideoView(true)
     }
 
     open fun onViewHolderClick() {
-        Logger.d("[RVPRecyclerView : onViewHolderClick]")
+        Logger.d("[$className : onViewHolderClick]")
         toggleVolume()
     }
 
     open fun onVideoPlayerSurfaceViewClick() {
-        Logger.d("[RVPRecyclerView : onVideoPlayerSurfaceViewClick]")
+        Logger.d("[$className : onVideoPlayerSurfaceViewClick]")
         toggleVolume()
     }
 
     open fun onVideoPlayerThumbnailClick() {
-        Logger.d("[RVPRecyclerView : onThumbnailClick]")
+        Logger.d("[$className : onVideoPlayerThumbnailClick]")
         toggleVolume()
     }
 
-    open fun onPlayerStopAndReset() {
-        Logger.d("[RVPRecyclerView : onPlayerStopAndReset]")
+    open fun onVideoPlayerStopAndReset() {
+        Logger.d("[$className : onVideoPlayerStopAndReset]")
 
         resetVideoView(false)
+
         videoPlayerSurfaceView?.player = null
         videoPlayer = null
     }
 
-    open fun onPlayerRelease() {
-        Logger.d("[RVPRecyclerView : onPlayerRelease]")
+    open fun onVideoPlayerStop() {
+        Logger.d("[$className : onVideoPlayerStop]")
+        videoPlayer?.stop()
+    }
+
+    open fun onVideoPlayerPause() {
+        Logger.d("[$className : onVideoPlayerPause]")
+        videoPlayer?.playWhenReady = false
+    }
+
+    open fun onVideoPlayerPlay() {
+        Logger.d("[$className : onVideoPlayerPlay]")
+        videoPlayer?.playWhenReady = true
+    }
+
+    open fun onVideoPlayerRestart() {
+        Logger.d("[$className : onVideoPlayerRestart]")
+        videoPlayer?.seekToDefaultPosition()
+    }
+
+    open fun onVideoPlayerRelease() {
+        Logger.d("[$className : onVideoPlayerRelease]")
 
         if (videoPlayer != null) {
             videoPlayer?.release()
@@ -427,27 +481,27 @@ open class RVPRecyclerView : RecyclerView {
         viewHolderParent = null
     }
 
-    open fun onPlayerReset(vh: ViewHolder) {
-        Logger.d("[RVPRecyclerView : onPlayerReset]")
+    open fun onVideoPlayerReset(vh: ViewHolder) {
+        Logger.d("[$className : onVideoPlayerReset]")
 
         if (viewHolderParent != null && viewHolderParent == vh.itemView) {
             resetVideoView(false)
         }
     }
 
-    open fun onPlayFirstAvailable(pos: Int) {
-        Logger.d("[RVPRecyclerView : onPlayFirstAvailable]")
+    open fun onVideoPlayerPlayFirstAvailable(pos: Int) {
+        Logger.d("[$className : onVideoPlayerPlayFirstAvailable]")
         playVideo(pos)
     }
 
-    open fun onAnimateVolumeControl() {
-        Logger.d("[RVPRecyclerView : onAnimateVolumeControl]")
+    open fun onVideoPlayerAnimateVolumeControl() {
+        Logger.d("[$className : onVideoPlayerAnimateVolumeControl]")
 
         if (videoPlayerVolumeControl != null) {
-            if (volumeState == VolumeState.OFF) {
-                videoPlayerVolumeControl?.load(R.drawable.ic_volume_off)
-            } else if (volumeState == VolumeState.ON) {
-                videoPlayerVolumeControl?.load(R.drawable.ic_volume_on)
+            if (volumeState == VolumeState.ON) {
+                videoPlayerVolumeControl?.load(videoPlayerDrawableVolumeOn)
+            } else if (volumeState == VolumeState.OFF) {
+                videoPlayerVolumeControl?.load(videoPlayerDrawableVolumeOff)
             }
 
             videoPlayerVolumeControl?.alpha = 1f
@@ -466,22 +520,22 @@ open class RVPRecyclerView : RecyclerView {
         }
     }
 
-    open fun onChangeVolumeControl(state: VolumeState) {
-        Logger.d("[RVPRecyclerView : onChangeVolumeControl]")
+    open fun onVideoPlayerChangeVolumeControl(state: VolumeState) {
+        Logger.d("[$className : onVideoPlayerChangeVolumeControl]")
 
         volumeState = state
 
         if (state == VolumeState.ON) {
             videoPlayer?.volume = 1f
-            onAnimateVolumeControl()
+            onVideoPlayerAnimateVolumeControl()
         } else if (state == VolumeState.OFF) {
             videoPlayer?.volume = 0f
-            onAnimateVolumeControl()
+            onVideoPlayerAnimateVolumeControl()
         }
     }
 
-    open fun onBuildMediaSource(item: MediaObject): MediaSource {
-        Logger.d("[RVPRecyclerView : onBuildMediaSource]")
+    open fun onVideoPlayerBuildMediaSource(item: MediaObject): MediaSource {
+        Logger.d("[$className : onVideoPlayerBuildMediaSource]")
 
         val dataSourceFactory = DefaultDataSourceFactory(context)
         val mediaItem = MediaItem.fromUri(item.mediaUrl ?: "")

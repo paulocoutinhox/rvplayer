@@ -40,6 +40,16 @@ Resources usage (Moto G):
 
 ![Resources usage](extras/images/95492ffa-31d5-46ea-9c94-03211f73e4c2.png)
 
+## Contribute
+
+You can contribute coding or searching for bugs. Report on "issues" menu if have any question.
+
+Before commit run format tool to everybody use the same code pattern:
+
+```
+make format
+```
+
 ## Buy me a coffee
 
 <a href='https://ko-fi.com/paulocoutinho' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi1.png?v=2' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
