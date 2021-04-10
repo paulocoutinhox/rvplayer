@@ -77,7 +77,7 @@
                         android:id="@+id/videoPlayerThumbnail"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@color/yellow_800"
+                        android:background="@color/grey_300"
                         android:contentDescription="@string/app_name"
                         android:scaleType="centerCrop"
                         android:src="@drawable/placeholder" />
