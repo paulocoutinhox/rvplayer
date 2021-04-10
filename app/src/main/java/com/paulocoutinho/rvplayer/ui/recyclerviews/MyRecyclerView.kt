@@ -1,8 +1,9 @@
 package com.paulocoutinho.rvplayer.ui.recyclerviews
 
 import android.content.Context
-import android.graphics.Point
+import android.graphics.Rect
 import android.util.AttributeSet
+import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
@@ -12,12 +13,12 @@ import android.widget.ProgressBar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.paulocoutinho.rvplayer.Application
@@ -41,15 +42,14 @@ class MyRecyclerView : RecyclerView {
     private var videoSurfaceView: PlayerView? = null
     private var videoPlayer: SimpleExoPlayer? = null
 
-    // vars
     private var listObjects: ArrayList<MediaObject> = ArrayList()
 
-    private var videoSurfaceDefaultHeight = 0
-    private var screenDefaultHeight = 0
     private var playPosition = -1
     private var isVideoViewAdded = false
 
     private var volumeState: VolumeState? = null
+
+    private var firstScroll = true
 
     constructor(context: Context) : super(context) {
         init()
@@ -62,20 +62,13 @@ class MyRecyclerView : RecyclerView {
     private fun init() {
         Logger.d("[MyRecyclerView : init]")
 
+        if (Application.instance.videoPlayer == null) {
+            throw Exception("You need initialize VideoPlayer first")
+        }
+
         videoPlayer = Application.instance.videoPlayer
 
-        val displayMetrics = resources.displayMetrics
-        val height = displayMetrics.heightPixels
-        val width = displayMetrics.widthPixels
-        val point = Point(width, height)
-
-        videoSurfaceDefaultHeight = point.x
-        screenDefaultHeight = point.y
-
-        videoSurfaceView = PlayerView(this.context)
-        videoSurfaceView?.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
-        videoSurfaceView?.useController = false
-        videoSurfaceView?.player = videoPlayer
+        initializeVideoSurfaceView()
 
         setVolumeControl(VolumeState.ON)
 
@@ -85,25 +78,22 @@ class MyRecyclerView : RecyclerView {
 
                 if (newState == SCROLL_STATE_IDLE) {
                     Logger.d("[MyRecyclerView : onScrollStateChanged] New state: $newState")
-
-                    thumbnail?.visibility = VISIBLE
-
-                    checkToPlayVideo()
+                    playFirstVideo(false)
                 }
             }
-        })
 
-        addOnChildAttachStateChangeListener(object : OnChildAttachStateChangeListener {
-            override fun onChildViewAttachedToWindow(view: View) {
-                Logger.d("[MyRecyclerView : onChildViewAttachedToWindow]")
-                // ignore
-            }
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
 
-            override fun onChildViewDetachedFromWindow(view: View) {
-                Logger.d("[MyRecyclerView : onChildViewDetachedFromWindow]")
+                Logger.d("[MyRecyclerView : onScrolled]")
 
-                if (viewHolderParent != null && viewHolderParent == view) {
-                    resetVideoView()
+                if (firstScroll) {
+                    Logger.d("[MyRecyclerView : onScrolled] First scroll")
+
+                    firstScroll = false
+                    playFirstVideo(false)
+                } else {
+                    Logger.d("[MyRecyclerView : onScrolled] Ignored")
                 }
             }
         })
@@ -142,6 +132,13 @@ class MyRecyclerView : RecyclerView {
                     }
                 }
             }
+
+            override fun onPlayerError(error: ExoPlaybackException) {
+                super.onPlayerError(error)
+
+                Logger.d("[MyRecyclerView : onPlayerError] Error: ${error.message}")
+                resetVideoView(true)
+            }
         })
     }
 
@@ -150,36 +147,13 @@ class MyRecyclerView : RecyclerView {
         toggleVolume()
     }
 
-    /**
-     * Returns the visible region of the video surface on the screen.
-     * if some is cut off, it will return less than the @videoSurfaceDefaultHeight
-     *
-     * @param playPosition
-     * @return
-     */
-    private fun getVisibleVideoSurfaceHeight(playPosition: Int): Int {
-        Logger.d("[MyRecyclerView : getVisibleVideoSurfaceHeight]")
-
-        val lm = (layoutManager as LinearLayoutManager)
-        val at = playPosition - lm.findFirstVisibleItemPosition()
-
-        Logger.d("[MyRecyclerView : getVisibleVideoSurfaceHeight] At: $at")
-
-        val child = getChildAt(at) ?: return 0
-        val location = IntArray(2)
-        child.getLocationInWindow(location)
-
-        return if (location[1] < 0) {
-            location[1] + videoSurfaceDefaultHeight
-        } else {
-            screenDefaultHeight - location[1]
-        }
-    }
-
     private fun removeVideoView(videoView: PlayerView?) {
-        Logger.d("[MyRecyclerView : removeVideoView]")
+        Logger.d("[MyRecyclerView : removeVideoView] Checking parent...")
 
         val parent = videoView?.parent as? ViewGroup ?: return
+
+        Logger.d("[MyRecyclerView : removeVideoView] Parent is OK")
+
         val index = parent.indexOfChild(videoView)
 
         if (index >= 0) {
@@ -189,11 +163,20 @@ class MyRecyclerView : RecyclerView {
 
             isVideoViewAdded = false
             viewHolderParent?.setOnClickListener(null)
+
+            Logger.d("[MyRecyclerView : removeVideoView] Removed")
+        } else {
+            Logger.d("[MyRecyclerView : removeVideoView] Not removed")
         }
     }
 
     private fun addVideoView() {
         Logger.d("[MyRecyclerView : addVideoView]")
+
+        if (videoSurfaceView == null) {
+            Logger.d("[MyRecyclerView : addVideoView] Cannot add video view because VideoSurfaceView is null")
+            return
+        }
 
         frameLayout?.addView(videoSurfaceView)
 
@@ -207,10 +190,10 @@ class MyRecyclerView : RecyclerView {
         progressBar?.visibility = GONE
     }
 
-    private fun resetVideoView() {
+    private fun resetVideoView(force: Boolean) {
         Logger.d("[MyRecyclerView : resetVideoView]")
 
-        if (isVideoViewAdded) {
+        if (isVideoViewAdded || force) {
             removeVideoView(videoSurfaceView)
 
             playPosition = -1
@@ -240,11 +223,11 @@ class MyRecyclerView : RecyclerView {
 
         volumeState = state
 
-        if (state == VolumeState.OFF) {
-            videoPlayer?.volume = 0f
-            animateVolumeControl()
-        } else if (state == VolumeState.ON) {
+        if (state == VolumeState.ON) {
             videoPlayer?.volume = 1f
+            animateVolumeControl()
+        } else if (state == VolumeState.OFF) {
+            videoPlayer?.volume = 0f
             animateVolumeControl()
         }
     }
@@ -260,14 +243,16 @@ class MyRecyclerView : RecyclerView {
         Logger.d("[MyRecyclerView : animateVolumeControl]")
 
         if (volumeControl != null) {
-            volumeControl?.bringToFront()
-
             if (volumeState == VolumeState.OFF) {
                 volumeControl?.load(R.drawable.ic_volume_off_grey_24dp)
             } else if (volumeState == VolumeState.ON) {
                 volumeControl?.load(R.drawable.ic_volume_up_grey_24dp)
             }
 
+            volumeControl?.alpha = 1f
+
+            /*
+            // TODO: Animation in breaking the surface view
             volumeControl?.animate()?.cancel()
             volumeControl?.alpha = 1f
 
@@ -276,50 +261,38 @@ class MyRecyclerView : RecyclerView {
                     ?.alpha(0f)
                     ?.setDuration(600)
                     ?.startDelay = 1000
+             */
         }
     }
 
-    fun playVideo(isEndOfList: Boolean) {
-        Logger.d("[MyRecyclerView : playVideo]")
+    private fun getVisibleHeightPercentage(view: View): Double {
+        Logger.d("[MyRecyclerView : getVisibleHeightPercentage]")
 
-        val targetPosition: Int
+        val itemRect = Rect()
+        val isParentViewEmpty = view.getLocalVisibleRect(itemRect)
 
-        if (!isEndOfList) {
-            val lm = (layoutManager as LinearLayoutManager)
-            val startPosition = lm.findFirstVisibleItemPosition()
-            var endPosition = lm.findLastVisibleItemPosition()
+        val visibleHeight = itemRect.height().toDouble()
+        val height = view.measuredHeight
 
-            // if there is more than 2 list-items on the screen, set the difference to be 1
-            if (endPosition - startPosition > 1) {
-                endPosition = startPosition + 1
-            }
+        val viewVisibleHeightPercentage = (visibleHeight / height) * 100
 
-            // something is wrong. return.
-            if (startPosition < 0 || endPosition < 0) {
-                return
-            }
-
-            // if there is more than 1 list-item on the screen
-            targetPosition = if (startPosition != endPosition) {
-                val startPositionVideoHeight = getVisibleVideoSurfaceHeight(startPosition)
-                val endPositionVideoHeight = getVisibleVideoSurfaceHeight(endPosition)
-                if (startPositionVideoHeight > endPositionVideoHeight) startPosition else endPosition
-            } else {
-                startPosition
-            }
+        return if (isParentViewEmpty) {
+            viewVisibleHeightPercentage
         } else {
-            targetPosition = listObjects.size - 1
+            0.0
         }
+    }
 
-        Logger.d("[MyRecyclerView : playVideo] Target position: $targetPosition")
+    fun playVideo(position: Int) {
+        Logger.d("[MyRecyclerView : playVideo] Position: $position")
 
         // video is already playing so return
-        if (targetPosition == playPosition) {
+        if (position == playPosition) {
             return
         }
 
         // set the position of the list-item that is to be played
-        playPosition = targetPosition
+        playPosition = position
 
         if (videoSurfaceView == null) {
             return
@@ -330,7 +303,7 @@ class MyRecyclerView : RecyclerView {
         removeVideoView(videoSurfaceView)
 
         val lm = (layoutManager as LinearLayoutManager)
-        val currentPosition = targetPosition - lm.findFirstVisibleItemPosition()
+        val currentPosition = playPosition - lm.findFirstVisibleItemPosition()
         val child = getChildAt(currentPosition) ?: return
 
         val holder = child.tag as? VideoPlayerViewHolder
@@ -346,13 +319,13 @@ class MyRecyclerView : RecyclerView {
         thumbnail = holder.thumbnail
         progressBar = holder.progressBar
         volumeControl = holder.volumeControl
-        viewHolderParent = holder.itemView
         frameLayout = holder.mediaContainer
+        viewHolderParent = holder.itemView
 
         videoSurfaceView?.player = videoPlayer
         viewHolderParent?.setOnClickListener(videoViewClickListener)
 
-        val mediaSource = buildMediaSource(listObjects[targetPosition])
+        val mediaSource = buildMediaSource(listObjects[playPosition])
 
         videoPlayer?.setMediaSource(mediaSource)
         videoPlayer?.prepare()
@@ -371,18 +344,72 @@ class MyRecyclerView : RecyclerView {
         viewHolderParent = null
     }
 
-    fun checkToPlayVideo() {
-        Logger.d("[MyRecyclerView : checkToPlayVideo]")
+    fun stopAndResetPlayer() {
+        Logger.d("[MyRecyclerView : stopAndResetPlayer]")
 
-        if (canScrollVertically(1)) {
-            playVideo(false)
-        } else {
-            playVideo(true)
-        }
+        videoPlayer?.stop()
+        resetVideoView(false)
+        videoSurfaceView?.player = null
     }
 
     fun setListObjects(objects: ArrayList<MediaObject>) {
         Logger.d("[MyRecyclerView : setListObjects]")
         listObjects = objects
     }
+
+    fun playFirstVideo(force: Boolean) {
+        Logger.d("[MyRecyclerView : playFirstVideo]")
+
+        val lm = (layoutManager as LinearLayoutManager)
+
+        val firstPosition = lm.findFirstVisibleItemPosition()
+        val lastPosition = lm.findLastVisibleItemPosition()
+
+        val globalVisibleRect = Rect()
+        getGlobalVisibleRect(globalVisibleRect)
+
+        var first100percent = false
+
+        for (pos in firstPosition..lastPosition) {
+            val viewHolder = findViewHolderForAdapterPosition(pos)
+
+            (viewHolder as? VideoPlayerViewHolder)?.let { vh ->
+                val percentage = getVisibleHeightPercentage(vh.itemView)
+
+                Logger.d("[MyRecyclerView : playFirstVideo] Position: $pos, Percentage: $percentage")
+
+                if (percentage > 60.0 || force) {
+                    if (first100percent) {
+                        Logger.d("[MyRecyclerView : playFirstVideo] Option: First 100%")
+
+                        if (viewHolderParent != null && viewHolderParent == vh.itemView) {
+                            resetVideoView(false)
+                        }
+                    } else {
+                        Logger.d("[MyRecyclerView : playFirstVideo] Option: Not first 100%")
+
+                        first100percent = true
+                        playVideo(pos)
+                    }
+                } else {
+                    Logger.d("[MyRecyclerView : playFirstVideo] Option: Nothing")
+
+                    if (viewHolderParent != null && viewHolderParent == vh.itemView) {
+                        resetVideoView(false)
+                    }
+                }
+            }
+        }
+    }
+
+    fun initializeVideoSurfaceView() {
+        Logger.d("[MyRecyclerView : initializeVideoSurfaceView]")
+
+        if (videoSurfaceView == null) {
+            videoSurfaceView = LayoutInflater.from(context).inflate(R.layout.my_video_player, null, false) as PlayerView
+        }
+
+        videoSurfaceView?.player = videoPlayer
+    }
+
 }

@@ -15,7 +15,11 @@ class ImageViewHolder(var parent: View) : ViewHolder(parent) {
 
     fun onBind(mediaObject: MediaObject) {
         title.text = mediaObject.title
-        thumbnail.load(mediaObject.thumbnail)
+
+        thumbnail.load(mediaObject.thumbnail) {
+            placeholder(R.drawable.placeholder)
+            error(R.drawable.placeholder)
+        }
     }
 
 }

@@ -22,7 +22,11 @@ class VideoPlayerViewHolder(var parent: View) : ViewHolder(parent) {
         parent.tag = this
 
         title.text = mediaObject.title
-        thumbnail.load(mediaObject.thumbnail)
+
+        thumbnail.load(mediaObject.thumbnail) {
+            placeholder(R.drawable.placeholder)
+            error(R.drawable.placeholder)
+        }
     }
 
 }
