@@ -16,6 +16,7 @@ Any suggestions and question you can use "issues" section on Github.
 4. Low resources usage (memory and CPU)
 5. Easy to extend and understand
 6. Single video playing
+7. Multiple pages inside ViewPager2 with video
 
 ## Screenshots
 
