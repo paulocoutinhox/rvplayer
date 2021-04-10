@@ -36,9 +36,21 @@ open class RVPRecyclerView : RecyclerView {
         ON, OFF
     }
 
+    enum class AutoPlayState {
+        ON, OFF
+    }
+
     open val videoPlayerComponentLayout: Int = R.layout.rvp_video_player
     open val videoPlayerDrawableVolumeOn: Int = R.drawable.ic_video_player_volume_on
     open val videoPlayerDrawableVolumeOff: Int = R.drawable.ic_video_player_volume_off
+
+    open var volumeState: VolumeState = VolumeState.OFF
+        set(value) {
+            field = value
+            onVideoPlayerChangeVolume(field)
+        }
+
+    open var autoPlayState: AutoPlayState = AutoPlayState.ON
 
     private val className = javaClass.simpleName
 
@@ -57,8 +69,7 @@ open class RVPRecyclerView : RecyclerView {
     private var playPosition = -1
     private var isVideoViewAdded = false
     private var firstScroll = true
-
-    private var volumeState: VolumeState? = null
+    private var volumeStateChanged = false
 
     private val viewHolderClickListener = OnClickListener {
         logDebug("[$className : ViewHolderClickListener]")
@@ -93,7 +104,7 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayer = Application.instance.videoPlayer
 
         onVideoPlayerInitializeSurfaceView()
-        onVideoPlayerChangeVolumeControl(VolumeState.ON)
+        onVideoPlayerChangeVolumeControl(volumeState)
 
         addOnScrollListener(object : OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -114,7 +125,11 @@ open class RVPRecyclerView : RecyclerView {
                     logDebug("[$className : onScrolled] First scroll")
 
                     firstScroll = false
-                    videoPlayerPlayFirstAvailable(false)
+
+                    // auto play
+                    if (autoPlayState == AutoPlayState.ON) {
+                        videoPlayerPlayFirstAvailable(false)
+                    }
                 } else {
                     logDebug("[$className : onScrolled] Ignored")
                 }
@@ -205,11 +220,13 @@ open class RVPRecyclerView : RecyclerView {
     private fun resetVideoView(force: Boolean) {
         logDebug("[$className : resetVideoView]")
 
+        // only if video was added before
         if (isVideoViewAdded || force) {
             removeVideoView(videoPlayerSurfaceView)
 
             playPosition = -1
 
+            // components
             videoPlayerSurfaceView?.visibility = INVISIBLE
             videoPlayerThumbnail?.visibility = VISIBLE
             videoPlayerProgressBar?.visibility = GONE
@@ -346,6 +363,12 @@ open class RVPRecyclerView : RecyclerView {
     fun videoPlayerStopAndReset() {
         logDebug("[$className : videoPlayerStopAndReset]")
         onVideoPlayerStopAndReset()
+    }
+
+    fun videoPlayerSetVolumeState(state: VolumeState) {
+        logDebug("[$className : videoPlayerSetVolumeState]")
+        volumeState = state
+        onVideoPlayerChangeVolumeControlImage()
     }
 
     fun videoPlayerPlayFirstAvailable(force: Boolean) {
@@ -505,25 +528,7 @@ open class RVPRecyclerView : RecyclerView {
         logDebug("[$className : onVideoPlayerAnimateVolumeControl]")
 
         if (videoPlayerVolumeControl != null) {
-            if (volumeState == VolumeState.ON) {
-                videoPlayerVolumeControl?.load(videoPlayerDrawableVolumeOn)
-            } else if (volumeState == VolumeState.OFF) {
-                videoPlayerVolumeControl?.load(videoPlayerDrawableVolumeOff)
-            }
-
-            videoPlayerVolumeControl?.alpha = 1f
-
-            /*
-            // TODO: Animation in breaking the surface view
-            volumeControl?.animate()?.cancel()
-            volumeControl?.alpha = 1f
-
-            volumeControl
-                    ?.animate()
-                    ?.alpha(0f)
-                    ?.setDuration(600)
-                    ?.startDelay = 1000
-             */
+            onVideoPlayerChangeVolumeControlImage()
         }
     }
 
@@ -532,13 +537,7 @@ open class RVPRecyclerView : RecyclerView {
 
         volumeState = state
 
-        if (state == VolumeState.ON) {
-            videoPlayer?.volume = 1f
-            onVideoPlayerAnimateVolumeControl()
-        } else if (state == VolumeState.OFF) {
-            videoPlayer?.volume = 0f
-            onVideoPlayerAnimateVolumeControl()
-        }
+        onVideoPlayerChangeVolume(volumeState)
     }
 
     open fun onVideoPlayerBuildMediaSource(item: MediaObject): MediaSource {
@@ -548,5 +547,41 @@ open class RVPRecyclerView : RecyclerView {
         val mediaItem = MediaItem.fromUri(item.mediaUrl ?: "")
 
         return ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem)
+    }
+
+    open fun onVideoPlayerChangeVolumeControlImage() {
+        logDebug("[$className : onVideoPlayerChangeVolumeControlImage]")
+
+        if (volumeState == VolumeState.ON) {
+            videoPlayerVolumeControl?.load(videoPlayerDrawableVolumeOn)
+        } else if (volumeState == VolumeState.OFF) {
+            videoPlayerVolumeControl?.load(videoPlayerDrawableVolumeOff)
+        }
+
+        videoPlayerVolumeControl?.alpha = 1f
+
+        /*
+        // TODO: Animation in breaking the surface view
+        volumeControl?.animate()?.cancel()
+        volumeControl?.alpha = 1f
+
+        volumeControl
+                ?.animate()
+                ?.alpha(0f)
+                ?.setDuration(600)
+                ?.startDelay = 1000
+         */
+    }
+
+    open fun onVideoPlayerChangeVolume(state: VolumeState) {
+        logDebug("[$className : onVideoPlayerChangeVolume]")
+
+        if (state == VolumeState.ON) {
+            videoPlayer?.volume = 1f
+            onVideoPlayerAnimateVolumeControl()
+        } else if (state == VolumeState.OFF) {
+            videoPlayer?.volume = 0f
+            onVideoPlayerAnimateVolumeControl()
+        }
     }
 }
