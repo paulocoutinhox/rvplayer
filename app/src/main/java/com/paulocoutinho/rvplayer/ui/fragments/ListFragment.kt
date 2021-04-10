@@ -15,7 +15,6 @@ import com.paulocoutinho.rvplayer.ui.recyclerviews.RVPRecyclerView
 import com.paulocoutinho.rvplayer.util.Logger
 import com.paulocoutinho.rvplayer.util.Resources
 import com.paulocoutinho.rvplayer.util.VerticalSpacingItemDecorator
-import java.util.*
 
 class ListFragment : Fragment(), FragmentLifecycle {
 
@@ -63,7 +62,7 @@ class ListFragment : Fragment(), FragmentLifecycle {
 
     override fun onResumeFragment() {
         Logger.d("[ListFragment : onResumeFragment]")
-        list?.initializeVideoSurfaceView()
+        list?.initializeVideoPlayerSurfaceView()
 
         Handler(Looper.getMainLooper()).post {
             list?.playFirstAvailable(false)
@@ -87,7 +86,5 @@ class ListFragment : Fragment(), FragmentLifecycle {
                 }
             }
         }
-
     }
-
 }

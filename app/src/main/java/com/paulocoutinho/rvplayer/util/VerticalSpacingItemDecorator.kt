@@ -10,5 +10,4 @@ class VerticalSpacingItemDecorator(private val verticalSpaceHeight: Int) : ItemD
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
         outRect.top = verticalSpaceHeight
     }
-
 }

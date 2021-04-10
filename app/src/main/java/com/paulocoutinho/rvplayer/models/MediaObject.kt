@@ -19,5 +19,4 @@ class MediaObject {
         this.description = description
         this.type = type
     }
-
 }

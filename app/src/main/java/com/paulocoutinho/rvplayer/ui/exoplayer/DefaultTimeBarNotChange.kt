@@ -13,5 +13,4 @@ class DefaultTimeBarNotChange : DefaultTimeBar {
     override fun setEnabled(enabled: Boolean) {
         super.setEnabled(false)
     }
-
 }

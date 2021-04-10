@@ -12,21 +12,21 @@ import com.paulocoutinho.rvplayer.models.MediaObject
 
 class VideoPlayerViewHolder(var parent: View) : ViewHolder(parent) {
 
-    var mediaContainer: FrameLayout = itemView.findViewById(R.id.mediaContainer)
-    var title: TextView = itemView.findViewById(R.id.title)
-    var thumbnail: ImageView = itemView.findViewById(R.id.thumbnail)
-    var volumeControl: ImageView = itemView.findViewById(R.id.volumeControl)
-    var progressBar: ProgressBar = itemView.findViewById(R.id.progressBar)
+    var videoPlayerMediaContainer: FrameLayout = itemView.findViewById(R.id.videoPlayerMediaContainer)
+    var videoControlsBackground: FrameLayout = itemView.findViewById(R.id.videoControlsBackground)
+    var videoPlayerTitle: TextView = itemView.findViewById(R.id.videoPlayerTitle)
+    var videoPlayerThumbnail: ImageView = itemView.findViewById(R.id.videoPlayerThumbnail)
+    var videoPlayerVolumeControl: ImageView = itemView.findViewById(R.id.videoPlayerVolumeControl)
+    var videoPlayerProgressBar: ProgressBar = itemView.findViewById(R.id.videoPlayerProgressBar)
 
     fun onBind(mediaObject: MediaObject) {
         parent.tag = this
 
-        title.text = mediaObject.title
+        videoPlayerTitle.text = mediaObject.title
 
-        thumbnail.load(mediaObject.thumbnail) {
+        videoPlayerThumbnail.load(mediaObject.thumbnail) {
             placeholder(R.drawable.placeholder)
             error(R.drawable.placeholder)
         }
     }
-
 }

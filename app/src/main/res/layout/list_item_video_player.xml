@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:elevation="2dp"
-        app:cardCornerRadius="12dp"
+        app:cardCornerRadius="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -30,14 +30,14 @@
             android:weightSum="100">
 
             <TextView
-                android:id="@+id/title"
+                android:id="@+id/videoPlayerTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="15dp"
                 android:padding="10dp"
                 android:text="@string/app_name"
                 android:textColor="#000"
-                android:textSize="20sp"
+                android:textSize="16sp"
                 app:layout_constraintBottom_toTopOf="@id/videoPlayerContainer"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -52,10 +52,10 @@
                 android:scaleType="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/title">
+                app:layout_constraintTop_toBottomOf="@id/videoPlayerTitle">
 
                 <FrameLayout
-                    android:id="@+id/mediaContainer"
+                    android:id="@+id/videoPlayerMediaContainer"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@color/grey_300"
@@ -74,7 +74,7 @@
                     app:layout_constraintStart_toStartOf="parent">
 
                     <ImageView
-                        android:id="@+id/thumbnail"
+                        android:id="@+id/videoPlayerThumbnail"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@color/yellow_800"
@@ -82,8 +82,14 @@
                         android:scaleType="centerCrop"
                         android:src="@drawable/placeholder" />
 
+                    <FrameLayout
+                        android:id="@+id/videoControlsBackground"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#99000000" />
+
                     <ImageView
-                        android:id="@+id/volumeControl"
+                        android:id="@+id/videoPlayerVolumeControl"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_gravity="end|bottom"
@@ -97,7 +103,7 @@
                         android:src="@drawable/ic_volume_on" />
 
                     <ProgressBar
-                        android:id="@+id/progressBar"
+                        android:id="@+id/videoPlayerProgressBar"
                         style="?android:attr/progressBarStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

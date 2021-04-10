@@ -4,8 +4,8 @@ import android.os.StrictMode
 import androidx.multidex.MultiDexApplication
 import coil.Coil
 import coil.ImageLoader
-import com.paulocoutinho.rvplayer.util.Logger
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.paulocoutinho.rvplayer.util.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -39,18 +39,18 @@ class Application : MultiDexApplication(), CoroutineScope {
     private fun initializeStrictMode() {
         if (BuildConfig.DEBUG) {
             StrictMode.setThreadPolicy(
-                    StrictMode.ThreadPolicy.Builder()
-                            .detectAll()
-                            .penaltyLog()
-                            .build()
+                StrictMode.ThreadPolicy.Builder()
+                    .detectAll()
+                    .penaltyLog()
+                    .build()
             )
 
             StrictMode.setVmPolicy(
-                    StrictMode.VmPolicy.Builder()
-                            .detectLeakedSqlLiteObjects()
-                            .detectLeakedClosableObjects()
-                            .penaltyLog()
-                            .build()
+                StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .penaltyLog()
+                    .build()
             )
         }
     }
@@ -63,10 +63,9 @@ class Application : MultiDexApplication(), CoroutineScope {
         Logger.d("[Application : setupImageLoader]")
 
         val imageLoader = ImageLoader.Builder(this)
-                .allowHardware(false)
-                .build()
+            .allowHardware(false)
+            .build()
 
         Coil.setImageLoader(imageLoader)
     }
-
 }

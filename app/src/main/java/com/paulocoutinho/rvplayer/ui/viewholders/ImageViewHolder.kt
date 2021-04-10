@@ -10,16 +10,15 @@ import com.paulocoutinho.rvplayer.models.MediaObject
 
 class ImageViewHolder(var parent: View) : ViewHolder(parent) {
 
-    var title: TextView = itemView.findViewById(R.id.title)
-    var thumbnail: ImageView = itemView.findViewById(R.id.thumbnail)
+    var imageTitle: TextView = itemView.findViewById(R.id.imageTitle)
+    var imageThumbnail: ImageView = itemView.findViewById(R.id.imageThumbnail)
 
     fun onBind(mediaObject: MediaObject) {
-        title.text = mediaObject.title
+        imageTitle.text = mediaObject.title
 
-        thumbnail.load(mediaObject.thumbnail) {
+        imageThumbnail.load(mediaObject.thumbnail) {
             placeholder(R.drawable.placeholder)
             error(R.drawable.placeholder)
         }
     }
-
 }

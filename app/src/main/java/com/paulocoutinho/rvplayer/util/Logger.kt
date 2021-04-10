@@ -43,5 +43,4 @@ object Logger {
     fun e(message: String) {
         Log.e(Application.LOG_GROUP, message)
     }
-
 }

@@ -50,5 +50,4 @@ class RVPRecyclerAdapter(private val mediaObjects: ArrayList<MediaObject>) : Rec
     override fun getItemCount(): Int {
         return mediaObjects.size
     }
-
 }
