@@ -298,6 +298,11 @@ open class RVPRecyclerView : RecyclerView {
         onPlayerRelease()
     }
 
+    open fun initializeVideoSurfaceView() {
+        Logger.d("[RVPRecyclerView : initializeVideoSurfaceView]")
+        onInitializeVideoSurfaceView()
+    }
+
     fun stopAndResetPlayer() {
         Logger.d("[RVPRecyclerView : stopAndResetPlayer]")
         onPlayerStopAndReset()
