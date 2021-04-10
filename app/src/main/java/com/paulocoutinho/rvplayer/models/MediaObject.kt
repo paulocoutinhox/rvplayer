@@ -11,12 +11,16 @@ class MediaObject {
     var thumbnail: String? = null
     var description: String? = null
     var type: MediaType? = null
+    var width: Int = 0
+    var height: Int = 0
 
-    constructor(title: String?, media_url: String?, thumbnail: String?, description: String?, type: MediaType?) {
+    constructor(title: String?, media_url: String?, thumbnail: String?, description: String?, width: Int, height: Int, type: MediaType?) {
         this.title = title
         this.mediaUrl = media_url
         this.thumbnail = thumbnail
         this.description = description
         this.type = type
+        this.width = width
+        this.height = height
     }
 }
