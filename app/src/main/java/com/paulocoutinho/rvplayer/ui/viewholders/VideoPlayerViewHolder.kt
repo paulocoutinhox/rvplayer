@@ -7,14 +7,14 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.paulocoutinho.rvplayer.Application
 import com.paulocoutinho.rvplayer.R
 import com.paulocoutinho.rvplayer.models.MediaObject
 
 @Suppress("unused")
-class VideoPlayerViewHolder(var parent: View) : ViewHolder(parent) {
+class VideoPlayerViewHolder(var parent: View) : RecyclerView.ViewHolder(parent) {
 
     var videoPlayerContainer: FrameLayout = itemView.findViewById(R.id.videoPlayerContainer)
     var listItemVideoPlayerCardBody: ConstraintLayout = itemView.findViewById(R.id.listItemVideoPlayerCardBody)
@@ -52,5 +52,16 @@ class VideoPlayerViewHolder(var parent: View) : ViewHolder(parent) {
             placeholder(R.drawable.placeholder)
             error(R.drawable.placeholder)
         }
+
+        // state
+        videoPlayerSetUiStateDefault()
+    }
+
+    private fun videoPlayerSetUiStateDefault() {
+        videoPlayerThumbnail.visibility = View.VISIBLE
+        videoPlayerMediaContainer.visibility = View.GONE
+        videoPlayerVolumeControl.visibility = View.GONE
+        videoPlayerProgressBar.visibility = View.GONE
+        videoControlsBackground.visibility = View.VISIBLE
     }
 }
