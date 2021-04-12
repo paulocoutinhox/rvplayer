@@ -52,22 +52,24 @@ class ListFragment : Fragment(), FragmentLifecycle {
 
         adapter = RVPRecyclerAdapter(mediaObjects)
         list?.adapter = adapter
+
+        list?.videoPlayerSystemStart()
     }
 
     override fun onDestroy() {
         Logger.d("[ListFragment : onDestroy]")
-        list?.videoPlayerStopAndReset()
+        list?.videoPlayerSystemStop()
         super.onDestroy()
     }
 
     override fun onResumeFragment() {
         Logger.d("[ListFragment : onResumeFragment]")
-        list?.videoPlayerInitializeSurfaceView()
+        list?.videoPlayerSystemRestart()
     }
 
     override fun onPauseFragment() {
         Logger.d("[ListFragment : onPauseFragment]")
-        list?.videoPlayerStopAndReset()
+        list?.videoPlayerSystemStop()
     }
 
     companion object {

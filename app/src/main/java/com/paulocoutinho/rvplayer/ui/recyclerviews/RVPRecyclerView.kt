@@ -29,6 +29,7 @@ import com.paulocoutinho.rvplayer.R
 import com.paulocoutinho.rvplayer.models.MediaObject
 import com.paulocoutinho.rvplayer.ui.viewholders.VideoPlayerViewHolder
 
+@SuppressLint("PrivateResource")
 @Suppress("unused")
 open class RVPRecyclerView : RecyclerView {
 
@@ -106,107 +107,79 @@ open class RVPRecyclerView : RecyclerView {
         onVideoPlayerRestartClick()
     }
 
+    private val videoPlayerEventListener = object : Player.EventListener {
+        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+            logDebug("[$className : onPlayerStateChanged] State: $playbackState, PlayWhenReady: $playWhenReady")
+
+            when (playbackState) {
+                Player.STATE_BUFFERING -> {
+                    logDebug("[$className : onPlayerStateChanged] Buffering video")
+                    onVideoPlayerStateIsBuffering()
+                }
+
+                Player.STATE_ENDED -> {
+                    logDebug("[$className : onPlayerStateChanged] Video ended")
+                    onVideoPlayerStateIsEnded()
+                }
+
+                Player.STATE_IDLE -> {
+                    onVideoPlayerStateIsIdle()
+                }
+
+                Player.STATE_READY -> {
+                    logDebug("[$className : onPlayerStateChanged] Ready to play")
+                    onVideoPlayerStateIsReady()
+                }
+
+                else -> {
+                    // ignore
+                }
+            }
+        }
+
+        override fun onPlayerError(error: ExoPlaybackException) {
+            super.onPlayerError(error)
+            logDebug("[$className : onPlayerError] Error: ${error.message}")
+            onVideoPlayerStateIsError(error)
+        }
+    }
+
+    private val videoPlayerScrollListener = object : OnScrollListener() {
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            super.onScrollStateChanged(recyclerView, newState)
+
+            if (newState == SCROLL_STATE_IDLE) {
+                logDebug("[$className : onScrollStateChanged] New state: $newState")
+                videoPlayerPlayFirstAvailable(false)
+            }
+        }
+
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+
+            logDebug("[$className : onScrolled]")
+
+            if (firstScroll) {
+                logDebug("[$className : onScrolled] First scroll")
+
+                firstScroll = false
+
+                // auto play
+                if (autoPlayState == AutoPlayState.ON) {
+                    videoPlayerPlayFirstAvailable(false)
+                }
+            } else {
+                logDebug("[$className : onScrolled] Ignored")
+            }
+        }
+    }
+
     constructor(context: Context) : super(context) {
-        init()
+        // ignore
     }
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-        init()
-    }
-
-    private fun init() {
-        logDebug("[$className : init]")
-
-        if (Application.instance.videoPlayer == null) {
-            throw Exception("[$className : init] You need initialize VideoPlayer first")
-        }
-
-        videoPlayer = Application.instance.videoPlayer
-
-        onVideoPlayerInitializeSurfaceView()
-        onVideoPlayerChangeVolumeControl(volumeState)
-
-        addOnScrollListener(object : OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-
-                if (newState == SCROLL_STATE_IDLE) {
-                    logDebug("[$className : onScrollStateChanged] New state: $newState")
-                    videoPlayerPlayFirstAvailable(false)
-                }
-            }
-
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-
-                logDebug("[$className : onScrolled]")
-
-                if (firstScroll) {
-                    logDebug("[$className : onScrolled] First scroll")
-
-                    firstScroll = false
-
-                    // auto play
-                    if (autoPlayState == AutoPlayState.ON) {
-                        videoPlayerPlayFirstAvailable(false)
-                    }
-                } else {
-                    logDebug("[$className : onScrolled] Ignored")
-                }
-            }
-        })
-
-        addOnChildAttachStateChangeListener(object : OnChildAttachStateChangeListener {
-            override fun onChildViewAttachedToWindow(view: View) {
-                logDebug("[$className : onChildViewAttachedToWindow]")
-                // ignore
-            }
-
-            override fun onChildViewDetachedFromWindow(view: View) {
-                logDebug("[$className : onChildViewDetachedFromWindow]")
-
-                if (viewHolderParent != null && viewHolderParent == view) {
-                    // resetVideoView(false)
-                }
-            }
-        })
-
-        videoPlayer?.addListener(object : Player.EventListener {
-            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-                logDebug("[$className : onPlayerStateChanged] State: $playbackState, PlayWhenReady: $playWhenReady")
-
-                when (playbackState) {
-                    Player.STATE_BUFFERING -> {
-                        logDebug("[$className : onPlayerStateChanged] Buffering video")
-                        onVideoPlayerStateIsBuffering()
-                    }
-
-                    Player.STATE_ENDED -> {
-                        logDebug("[$className : onPlayerStateChanged] Video ended")
-                        onVideoPlayerStateIsEnded()
-                    }
-
-                    Player.STATE_IDLE -> {
-                        onVideoPlayerStateIsIdle()
-                    }
-
-                    Player.STATE_READY -> {
-                        logDebug("[$className : onPlayerStateChanged] Ready to play")
-                        onVideoPlayerStateIsReady()
-                    }
-
-                    else -> {
-                        // ignore
-                    }
-                }
-            }
-
-            override fun onPlayerError(error: ExoPlaybackException) {
-                super.onPlayerError(error)
-                logDebug("[$className : onPlayerError] Error: ${error.message}")
-                onVideoPlayerStateIsError(error)
-            }
-        })
+        // ignore
     }
 
     private fun removeVideoView(videoView: PlayerView?) {
@@ -448,11 +421,6 @@ open class RVPRecyclerView : RecyclerView {
         onVideoPlayerRestart()
     }
 
-    fun videoPlayerStopAndReset() {
-        logDebug("[$className : videoPlayerStopAndReset]")
-        onVideoPlayerStopAndReset()
-    }
-
     fun videoPlayerSetVolumeState(state: VolumeState) {
         logDebug("[$className : videoPlayerSetVolumeState]")
         volumeState = state
@@ -497,6 +465,21 @@ open class RVPRecyclerView : RecyclerView {
                 }
             }
         }
+    }
+
+    fun videoPlayerSystemStart() {
+        logDebug("[$className : videoPlayerSystemStart]")
+        onVideoPlayerSystemStart()
+    }
+
+    fun videoPlayerSystemStop() {
+        logDebug("[$className : videoPlayerSystemStop]")
+        onVideoPlayerSystemStop()
+    }
+
+    fun videoPlayerSystemRestart() {
+        logDebug("[$className : videoPlayerSystemRestart]")
+        onVideoPlayerSystemRestart()
     }
 
     @SuppressLint("InflateParams")
@@ -573,16 +556,6 @@ open class RVPRecyclerView : RecyclerView {
     open fun onVideoPlayerRestartClick() {
         logDebug("[$className : onVideoPlayerRestartClick]")
         videoPlayerRestart()
-    }
-
-    open fun onVideoPlayerStopAndReset() {
-        logDebug("[$className : onVideoPlayerStopAndReset]")
-
-        resetVideoView(false)
-        onVideoPlayerSetUiStateStopped()
-
-        videoPlayerSurfaceView?.player = null
-        videoPlayer = null
     }
 
     open fun onVideoPlayerStop() {
@@ -818,5 +791,40 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayerMediaContainer?.visibility = VISIBLE
         videoPlayerPlay?.visibility = GONE
         videoPlayerRestart?.visibility = GONE
+    }
+
+    open fun onVideoPlayerSystemStart() {
+        logDebug("[$className : onVideoPlayerSystemStart]")
+
+        if (Application.instance.videoPlayer == null) {
+            throw Exception("[$className : onVideoPlayerSystemStart] You need initialize VideoPlayer first")
+        }
+
+        videoPlayer = Application.instance.videoPlayer
+
+        onVideoPlayerInitializeSurfaceView()
+        onVideoPlayerChangeVolumeControl(volumeState)
+
+        removeOnScrollListener(videoPlayerScrollListener)
+        addOnScrollListener(videoPlayerScrollListener)
+
+        videoPlayer?.removeListener(videoPlayerEventListener)
+        videoPlayer?.addListener(videoPlayerEventListener)
+    }
+
+    open fun onVideoPlayerSystemStop() {
+        logDebug("[$className : onVideoPlayerSystemStop]")
+
+        resetVideoView(false)
+        onVideoPlayerSetUiStateStopped()
+
+        videoPlayerSurfaceView?.player = null
+        videoPlayer = null
+    }
+
+    open fun onVideoPlayerSystemRestart() {
+        logDebug("[$className : onVideoPlayerSystemRestart]")
+
+        onVideoPlayerInitializeSurfaceView()
     }
 }
