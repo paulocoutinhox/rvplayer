@@ -12,9 +12,9 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
@@ -41,9 +41,19 @@ open class RVPRecyclerView : RecyclerView {
         ON, OFF
     }
 
+    enum class PlayingState {
+        PLAY, PAUSE
+    }
+
+    enum class PlayingOptionsState {
+        ON, OFF
+    }
+
     open val videoPlayerComponentLayout: Int = R.layout.rvp_video_player
     open val videoPlayerDrawableVolumeOn: Int = R.drawable.ic_video_player_volume_on
     open val videoPlayerDrawableVolumeOff: Int = R.drawable.ic_video_player_volume_off
+    open val videoPlayerDrawablePlay: Int = R.drawable.ic_video_player_play
+    open val videoPlayerDrawablePause: Int = R.drawable.ic_video_player_pause
 
     open var volumeState: VolumeState = VolumeState.OFF
         set(value) {
@@ -76,6 +86,9 @@ open class RVPRecyclerView : RecyclerView {
 
     private var mediaEnded = false
     private var mediaLoaded = false
+
+    private var playingState = PlayingState.PLAY
+    private var playingOptionsState = PlayingOptionsState.OFF
 
     private val viewHolderClickListener = OnClickListener {
         logDebug("[$className : ViewHolderClickListener]")
@@ -530,17 +543,17 @@ open class RVPRecyclerView : RecyclerView {
 
     open fun onViewHolderClick() {
         logDebug("[$className : onViewHolderClick]")
-        videoPlayerToggleVolumeControl()
+        onVideoPlayerSetUiStateCheckPlayingOptions()
     }
 
     open fun onVideoPlayerSurfaceViewClick() {
         logDebug("[$className : onVideoPlayerSurfaceViewClick]")
-        videoPlayerToggleVolumeControl()
+        onVideoPlayerSetUiStateCheckPlayingOptions()
     }
 
     open fun onVideoPlayerThumbnailClick() {
         logDebug("[$className : onVideoPlayerThumbnailClick]")
-        videoPlayerToggleVolumeControl()
+        // ignore because it has overlay
     }
 
     open fun onVideoPlayerVolumeControlClick() {
@@ -672,10 +685,18 @@ open class RVPRecyclerView : RecyclerView {
     open fun onVideoPlayerChangeVolumeControlImage() {
         logDebug("[$className : onVideoPlayerChangeVolumeControlImage]")
 
+        val imageTag = videoPlayerVolumeControl?.tag ?: -1
+
         if (volumeState == VolumeState.ON) {
-            videoPlayerVolumeControl?.load(videoPlayerDrawableVolumeOn)
+            if (imageTag != 1) {
+                videoPlayerVolumeControl?.tag = 1
+                videoPlayerVolumeControl?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawableVolumeOn))
+            }
         } else if (volumeState == VolumeState.OFF) {
-            videoPlayerVolumeControl?.load(videoPlayerDrawableVolumeOff)
+            if (imageTag != 2) {
+                videoPlayerVolumeControl?.tag = 2
+                videoPlayerVolumeControl?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawableVolumeOff))
+            }
         }
 
         videoPlayerVolumeControl?.alpha = 1f
@@ -693,6 +714,24 @@ open class RVPRecyclerView : RecyclerView {
          */
     }
 
+    open fun onVideoPlayerChangePlayingImage() {
+        logDebug("[$className : onVideoPlayerChangePlayingImage]")
+
+        val imageTag = videoPlayerPlay?.tag ?: -1
+
+        if (playingState == PlayingState.PLAY) {
+            if (imageTag != 1) {
+                videoPlayerPlay?.tag = 1
+                videoPlayerPlay?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawablePlay))
+            }
+        } else if (playingState == PlayingState.PAUSE) {
+            if (imageTag != 1) {
+                videoPlayerPlay?.tag = 2
+                videoPlayerPlay?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawablePause))
+            }
+        }
+    }
+
     open fun onVideoPlayerChangeVolume(state: VolumeState) {
         logDebug("[$className : onVideoPlayerChangeVolume]")
 
@@ -708,6 +747,8 @@ open class RVPRecyclerView : RecyclerView {
     open fun onVideoPlayerSetUiStateDefault() {
         logDebug("[$className : onVideoPlayerSetUiStateDefault]")
 
+        onVideoPlayerChangePlayingImage()
+
         videoPlayerThumbnail?.visibility = VISIBLE
         videoPlayerMediaContainer?.visibility = GONE
         videoPlayerVolumeControl?.visibility = GONE
@@ -720,11 +761,11 @@ open class RVPRecyclerView : RecyclerView {
     open fun onVideoPlayerSetUiStatePlaying() {
         logDebug("[$className : onVideoPlayerSetUiStatePlaying]")
 
-        onVideoPlayerChangeVolumeControlImage()
+        onVideoPlayerChangePlayingImage()
 
         videoPlayerThumbnail?.visibility = GONE
         videoPlayerMediaContainer?.visibility = VISIBLE
-        videoPlayerVolumeControl?.visibility = VISIBLE
+        videoPlayerVolumeControl?.visibility = GONE
         videoPlayerProgressBar?.visibility = GONE
         videoControlsBackground?.visibility = GONE
         videoPlayerPlay?.visibility = GONE
@@ -750,6 +791,8 @@ open class RVPRecyclerView : RecyclerView {
     open fun onVideoPlayerSetUiStateError() {
         logDebug("[$className : onVideoPlayerSetUiStateError]")
 
+        onVideoPlayerChangePlayingImage()
+
         videoPlayerThumbnail?.visibility = VISIBLE
         videoPlayerMediaContainer?.visibility = GONE
         videoPlayerVolumeControl?.visibility = GONE
@@ -762,6 +805,8 @@ open class RVPRecyclerView : RecyclerView {
     open fun onVideoPlayerSetUiStateEnded() {
         logDebug("[$className : onVideoPlayerSetUiStateEnded]")
 
+        onVideoPlayerChangePlayingImage()
+
         videoPlayerThumbnail?.visibility = VISIBLE
         videoPlayerMediaContainer?.visibility = GONE
         videoPlayerVolumeControl?.visibility = GONE
@@ -773,6 +818,8 @@ open class RVPRecyclerView : RecyclerView {
 
     open fun onVideoPlayerSetUiStateStopped() {
         logDebug("[$className : onVideoPlayerSetUiStateStopped]")
+
+        onVideoPlayerChangePlayingImage()
 
         videoPlayerThumbnail?.visibility = VISIBLE
         videoPlayerMediaContainer?.visibility = GONE
@@ -791,6 +838,32 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayerMediaContainer?.visibility = VISIBLE
         videoPlayerPlay?.visibility = GONE
         videoPlayerRestart?.visibility = GONE
+    }
+
+    open fun onVideoPlayerSetUiStatePlayingOptions() {
+        logDebug("[$className : onVideoPlayerSetUiStatePlayingOptions]")
+
+        onVideoPlayerChangePlayingImage()
+
+        videoPlayerProgressBar?.visibility = GONE
+        videoPlayerThumbnail?.visibility = GONE
+        videoPlayerMediaContainer?.visibility = VISIBLE
+        videoPlayerVolumeControl?.visibility = VISIBLE
+        videoPlayerPlay?.visibility = VISIBLE
+        videoPlayerRestart?.visibility = VISIBLE
+        videoControlsBackground?.visibility = VISIBLE
+    }
+
+    open fun onVideoPlayerSetUiStateCheckPlayingOptions() {
+        logDebug("[$className : onVideoPlayerSetUiStateCheckPlayingOptions]")
+
+        if (playingOptionsState == PlayingOptionsState.ON) {
+            playingOptionsState = PlayingOptionsState.OFF
+            onVideoPlayerSetUiStatePlaying()
+        } else {
+            playingOptionsState = PlayingOptionsState.ON
+            onVideoPlayerSetUiStatePlayingOptions()
+        }
     }
 
     open fun onVideoPlayerSystemStart() {
