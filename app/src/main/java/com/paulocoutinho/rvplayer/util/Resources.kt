@@ -8,7 +8,7 @@ object Resources {
         MediaObject(
             "Video for test - One",
             "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
-            "https://dummyimage.com/1024x768/FFFFFF/000000.png?text=THUMB",
+            "https://loremflickr.com/1024/768/all?rnd=1",
             "Description for media object #1",
             320,
             240,
@@ -28,7 +28,7 @@ object Resources {
         MediaObject(
             "Video for test - Two",
             "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
-            "https://dummyimage.com/1024x768/FFFFFF/000000.png?text=THUMB",
+            "https://loremflickr.com/1024/768/all?rnd=2",
             "Description for media object #3",
             320,
             240,
@@ -48,7 +48,7 @@ object Resources {
         MediaObject(
             "Video for test - Three",
             "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
-            "https://dummyimage.com/1024x768/FFFFFF/000000.png?text=THUMB",
+            "https://loremflickr.com/1024/768/all?rnd=3",
             "Description for media object #5",
             320,
             240,
@@ -68,7 +68,7 @@ object Resources {
         MediaObject(
             "Video for test - Four",
             "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
-            "https://dummyimage.com/1024x768/FFFFFF/000000.png?text=THUMB",
+            "https://loremflickr.com/1024/768/all?rnd=4",
             "Description for media object #7",
             320,
             240,
@@ -88,7 +88,7 @@ object Resources {
         MediaObject(
             "Video for test - Five",
             "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
-            "https://dummyimage.com/1024x768/FFFFFF/000000.png?text=THUMB",
+            "https://loremflickr.com/1024/768/all?rnd=5",
             "Description for media object #9",
             320,
             240,
