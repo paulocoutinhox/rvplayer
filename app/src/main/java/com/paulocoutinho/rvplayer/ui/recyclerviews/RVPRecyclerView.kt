@@ -73,6 +73,9 @@ open class RVPRecyclerView : RecyclerView {
     private var firstScroll = true
     private var volumeStateChanged = false
 
+    private var mediaEnded = false
+    private var mediaLoaded = false
+
     private val viewHolderClickListener = OnClickListener {
         logDebug("[$className : ViewHolderClickListener]")
         onViewHolderClick()
@@ -256,6 +259,9 @@ open class RVPRecyclerView : RecyclerView {
             removeVideoView(videoPlayerSurfaceView)
             playPosition = -1
         }
+
+        mediaEnded = false
+        mediaLoaded = false
     }
 
     private fun videoPlayerToggleVolumeControl() {
@@ -351,6 +357,9 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayer?.prepare()
         videoPlayer?.repeatMode = Player.REPEAT_MODE_OFF
         videoPlayer?.playWhenReady = true
+
+        mediaEnded = false
+        mediaLoaded = true
 
         onVideoPlayerSetUiStatePlaying()
     }
@@ -526,6 +535,7 @@ open class RVPRecyclerView : RecyclerView {
 
     open fun onVideoPlayerStateIsEnded() {
         logDebug("[$className : onVideoPlayerStateIsEnded]")
+        mediaEnded = true
         onVideoPlayerSetUiStateEnded()
     }
 
@@ -557,7 +567,7 @@ open class RVPRecyclerView : RecyclerView {
 
     open fun onVideoPlayerPlayClick() {
         logDebug("[$className : onVideoPlayerPlayClick]")
-        videoPlayerPlayFirstAvailable(false)
+        onVideoPlayerPlay()
     }
 
     open fun onVideoPlayerRestartClick() {
@@ -587,17 +597,49 @@ open class RVPRecyclerView : RecyclerView {
 
     open fun onVideoPlayerPlay() {
         logDebug("[$className : onVideoPlayerPlay]")
-        videoPlayer?.playWhenReady = true
+
+        when {
+            mediaEnded -> {
+                onVideoPlayerSetUiStatePlaying()
+
+                videoPlayer?.seekToDefaultPosition()
+                videoPlayer?.play()
+                videoPlayer?.playWhenReady = true
+            }
+            mediaLoaded -> {
+                onVideoPlayerSetUiStatePlaying()
+
+                videoPlayer?.play()
+                videoPlayer?.playWhenReady = true
+            }
+            else -> {
+                videoPlayerPlayFirstAvailable(true)
+            }
+        }
     }
 
     open fun onVideoPlayerRestart() {
         logDebug("[$className : onVideoPlayerRestart]")
 
-        onVideoPlayerSetUiStatePlaying()
+        when {
+            mediaEnded -> {
+                onVideoPlayerSetUiStatePlaying()
 
-        videoPlayer?.seekToDefaultPosition()
-        videoPlayer?.play()
-        videoPlayer?.playWhenReady = true
+                videoPlayer?.seekToDefaultPosition()
+                videoPlayer?.play()
+                videoPlayer?.playWhenReady = true
+            }
+            mediaLoaded -> {
+                onVideoPlayerSetUiStatePlaying()
+
+                videoPlayer?.seekToDefaultPosition()
+                videoPlayer?.play()
+                videoPlayer?.playWhenReady = true
+            }
+            else -> {
+                videoPlayerPlayFirstAvailable(true)
+            }
+        }
     }
 
     open fun onVideoPlayerRelease() {
