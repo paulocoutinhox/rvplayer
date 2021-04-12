@@ -27,6 +27,16 @@ class VideoPlayerViewHolder(var parent: View) : RecyclerView.ViewHolder(parent) 
     var videoPlayerPlay: ImageView = itemView.findViewById(R.id.videoPlayerPlay)
     var videoPlayerRestart: ImageView = itemView.findViewById(R.id.videoPlayerRestart)
 
+    init {
+        videoPlayerThumbnail.visibility = RecyclerView.VISIBLE
+        videoPlayerMediaContainer.visibility = RecyclerView.GONE
+        videoPlayerVolumeControl.visibility = RecyclerView.GONE
+        videoPlayerProgressBar.visibility = RecyclerView.GONE
+        videoControlsBackground.visibility = RecyclerView.VISIBLE
+        videoPlayerPlay.visibility = RecyclerView.VISIBLE
+        videoPlayerRestart.visibility = RecyclerView.GONE
+    }
+
     fun onBind(mediaObject: MediaObject) {
         // layout
         val layoutParams = videoPlayerContainer.layoutParams
