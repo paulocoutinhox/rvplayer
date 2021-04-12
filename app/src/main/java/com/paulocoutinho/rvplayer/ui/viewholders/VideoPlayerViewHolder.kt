@@ -24,6 +24,8 @@ class VideoPlayerViewHolder(var parent: View) : RecyclerView.ViewHolder(parent) 
     var videoPlayerThumbnail: ImageView = itemView.findViewById(R.id.videoPlayerThumbnail)
     var videoPlayerVolumeControl: ImageView = itemView.findViewById(R.id.videoPlayerVolumeControl)
     var videoPlayerProgressBar: ProgressBar = itemView.findViewById(R.id.videoPlayerProgressBar)
+    var videoPlayerPlay: ImageView = itemView.findViewById(R.id.videoPlayerPlay)
+    var videoPlayerRestart: ImageView = itemView.findViewById(R.id.videoPlayerRestart)
 
     fun onBind(mediaObject: MediaObject) {
         // layout
@@ -52,16 +54,5 @@ class VideoPlayerViewHolder(var parent: View) : RecyclerView.ViewHolder(parent) 
             placeholder(R.drawable.placeholder)
             error(R.drawable.placeholder)
         }
-
-        // state
-        videoPlayerSetUiStateDefault()
-    }
-
-    private fun videoPlayerSetUiStateDefault() {
-        videoPlayerThumbnail.visibility = View.VISIBLE
-        videoPlayerMediaContainer.visibility = View.GONE
-        videoPlayerVolumeControl.visibility = View.GONE
-        videoPlayerProgressBar.visibility = View.GONE
-        videoControlsBackground.visibility = View.VISIBLE
     }
 }

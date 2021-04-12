@@ -55,6 +55,8 @@ open class RVPRecyclerView : RecyclerView {
     private val className = javaClass.simpleName
 
     private var videoPlayerThumbnail: ImageView? = null
+    private var videoPlayerPlay: ImageView? = null
+    private var videoPlayerRestart: ImageView? = null
     private var videoPlayerVolumeControl: ImageView? = null
     private var videoPlayerProgressBar: ProgressBar? = null
     private var viewHolderParent: View? = null
@@ -89,6 +91,16 @@ open class RVPRecyclerView : RecyclerView {
     private val videoPlayerVolumeControlClickListener = OnClickListener {
         logDebug("[$className : videoPlayerVolumeControlClickListener]")
         onVideoPlayerVolumeControlClick()
+    }
+
+    private val videoPlayerPlayClickListener = OnClickListener {
+        logDebug("[$className : videoPlayerPlayClickListener]")
+        onVideoPlayerPlayClick()
+    }
+
+    private val videoPlayerRestartClickListener = OnClickListener {
+        logDebug("[$className : videoPlayerRestartClickListener]")
+        onVideoPlayerRestartClick()
     }
 
     constructor(context: Context) : super(context) {
@@ -137,6 +149,21 @@ open class RVPRecyclerView : RecyclerView {
                     }
                 } else {
                     logDebug("[$className : onScrolled] Ignored")
+                }
+            }
+        })
+
+        addOnChildAttachStateChangeListener(object : OnChildAttachStateChangeListener {
+            override fun onChildViewAttachedToWindow(view: View) {
+                logDebug("[$className : onChildViewAttachedToWindow]")
+                // ignore
+            }
+
+            override fun onChildViewDetachedFromWindow(view: View) {
+                logDebug("[$className : onChildViewDetachedFromWindow]")
+
+                if (viewHolderParent != null && viewHolderParent == view) {
+                    // resetVideoView(false)
                 }
             }
         })
@@ -227,7 +254,6 @@ open class RVPRecyclerView : RecyclerView {
         // only if video was added before
         if (isVideoViewAdded || force) {
             removeVideoView(videoPlayerSurfaceView)
-
             playPosition = -1
         }
     }
@@ -299,18 +325,24 @@ open class RVPRecyclerView : RecyclerView {
 
         videoPlayerThumbnail = holder.videoPlayerThumbnail
         videoPlayerProgressBar = holder.videoPlayerProgressBar
+        videoPlayerPlay = holder.videoPlayerPlay
+        videoPlayerRestart = holder.videoPlayerRestart
         videoPlayerVolumeControl = holder.videoPlayerVolumeControl
         videoPlayerMediaContainer = holder.videoPlayerMediaContainer
-        videoControlsBackground = holder.videoControlsBackground
         videoControlsBackground = holder.videoControlsBackground
 
         viewHolderParent = holder.itemView
 
         videoPlayerThumbnail?.setOnClickListener(videoPlayerThumbnailClickListener)
         videoPlayerVolumeControl?.setOnClickListener(videoPlayerVolumeControlClickListener)
+        videoPlayerPlay?.setOnClickListener(videoPlayerPlayClickListener)
+        videoPlayerRestart?.setOnClickListener(videoPlayerRestartClickListener)
         viewHolderParent?.setOnClickListener(viewHolderClickListener)
 
-        videoPlayerSurfaceView?.player = videoPlayer
+        if (videoPlayerSurfaceView?.player == null) {
+            videoPlayerSurfaceView?.player = videoPlayer
+        }
+
         videoPlayerSurfaceView?.setOnClickListener(videoPlayerSurfaceViewClickListener)
 
         val mediaSource = onVideoPlayerBuildMediaSource(listObjects[playPosition])
@@ -321,6 +353,49 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayer?.playWhenReady = true
 
         onVideoPlayerSetUiStatePlaying()
+    }
+
+    private fun attachVideoHolder(position: Int) {
+        logDebug("[$className : attachVideoHolder] Position: $position")
+
+        // video is already playing so return
+        if (position == playPosition) {
+            return
+        }
+
+        val lm = (layoutManager as LinearLayoutManager)
+        val currentPosition = position - lm.findFirstVisibleItemPosition()
+        val child = getChildAt(currentPosition) ?: return
+
+        val holder = child.tag as? VideoPlayerViewHolder
+
+        if (holder == null) {
+            logDebug("[$className : attachVideoHolder] Holder is not video player")
+            return
+        }
+
+        logDebug("[$className : attachVideoHolder] Holder is video player")
+
+        val videoPlayerThumbnail = holder.videoPlayerThumbnail
+        val videoPlayerProgressBar = holder.videoPlayerProgressBar
+        val videoPlayerPlay = holder.videoPlayerPlay
+        val videoPlayerRestart = holder.videoPlayerRestart
+        val videoPlayerVolumeControl = holder.videoPlayerVolumeControl
+        val videoPlayerMediaContainer = holder.videoPlayerMediaContainer
+        val videoControlsBackground = holder.videoControlsBackground
+
+        videoPlayerThumbnail.setOnClickListener(videoPlayerThumbnailClickListener)
+        videoPlayerVolumeControl.setOnClickListener(videoPlayerVolumeControlClickListener)
+        videoPlayerPlay.setOnClickListener(videoPlayerPlayClickListener)
+        videoPlayerRestart.setOnClickListener(videoPlayerRestartClickListener)
+
+        videoPlayerThumbnail.visibility = GONE
+        videoPlayerMediaContainer.visibility = VISIBLE
+        videoPlayerVolumeControl.visibility = VISIBLE
+        videoPlayerProgressBar.visibility = GONE
+        videoControlsBackground.visibility = GONE
+        videoPlayerPlay.visibility = GONE
+        videoPlayerRestart.visibility = GONE
     }
 
     private fun logDebug(message: String) {
@@ -400,6 +475,7 @@ open class RVPRecyclerView : RecyclerView {
                     if (first100percent) {
                         logDebug("[$className : playFirstVideo] Option: First 100%")
                         onVideoPlayerReset(vh)
+                        onVideoPlayerAttachViewHolder(pos)
                     } else {
                         logDebug("[$className : playFirstVideo] Option: Not first 100%")
                         first100percent = true
@@ -408,6 +484,7 @@ open class RVPRecyclerView : RecyclerView {
                 } else {
                     logDebug("[$className : playFirstVideo] Option: Nothing")
                     onVideoPlayerReset(vh)
+                    onVideoPlayerAttachViewHolder(pos)
                 }
             }
         }
@@ -479,6 +556,16 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayerToggleVolumeControl()
     }
 
+    open fun onVideoPlayerPlayClick() {
+        logDebug("[$className : onVideoPlayerPlayClick]")
+        videoPlayerPlayFirstAvailable(false)
+    }
+
+    open fun onVideoPlayerRestartClick() {
+        logDebug("[$className : onVideoPlayerRestartClick]")
+        videoPlayerRestart()
+    }
+
     open fun onVideoPlayerStopAndReset() {
         logDebug("[$className : onVideoPlayerStopAndReset]")
 
@@ -525,13 +612,17 @@ open class RVPRecyclerView : RecyclerView {
 
         if (viewHolderParent != null && viewHolderParent == vh.itemView) {
             resetVideoView(false)
-            onVideoPlayerSetUiStateDefault()
         }
     }
 
     open fun onVideoPlayerPlayFirstAvailable(pos: Int) {
         logDebug("[$className : onVideoPlayerPlayFirstAvailable]")
         playVideo(pos)
+    }
+
+    open fun onVideoPlayerAttachViewHolder(pos: Int) {
+        logDebug("[$className : onVideoPlayerAttachViewHolder]")
+        attachVideoHolder(pos)
     }
 
     open fun onVideoPlayerAnimateVolumeControl() {
@@ -603,6 +694,8 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayerVolumeControl?.visibility = GONE
         videoPlayerProgressBar?.visibility = GONE
         videoControlsBackground?.visibility = VISIBLE
+        videoPlayerPlay?.visibility = VISIBLE
+        videoPlayerRestart?.visibility = GONE
     }
 
     open fun onVideoPlayerSetUiStatePlaying() {
@@ -615,6 +708,8 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayerVolumeControl?.visibility = VISIBLE
         videoPlayerProgressBar?.visibility = GONE
         videoControlsBackground?.visibility = GONE
+        videoPlayerPlay?.visibility = GONE
+        videoPlayerRestart?.visibility = GONE
     }
 
     open fun onVideoPlayerSetUiStateBuffering() {
@@ -628,6 +723,9 @@ open class RVPRecyclerView : RecyclerView {
 
         videoPlayerProgressBar?.visibility = GONE
         videoPlayerThumbnail?.visibility = GONE
+        videoPlayerMediaContainer?.visibility = VISIBLE
+        videoPlayerPlay?.visibility = GONE
+        videoPlayerRestart?.visibility = GONE
     }
 
     open fun onVideoPlayerSetUiStateError() {
@@ -638,6 +736,8 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayerVolumeControl?.visibility = GONE
         videoPlayerProgressBar?.visibility = GONE
         videoControlsBackground?.visibility = VISIBLE
+        videoPlayerPlay?.visibility = VISIBLE
+        videoPlayerRestart?.visibility = GONE
     }
 
     open fun onVideoPlayerSetUiStateEnded() {
@@ -648,6 +748,8 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayerVolumeControl?.visibility = GONE
         videoPlayerProgressBar?.visibility = GONE
         videoControlsBackground?.visibility = VISIBLE
+        videoPlayerPlay?.visibility = VISIBLE
+        videoPlayerRestart?.visibility = GONE
     }
 
     open fun onVideoPlayerSetUiStateStopped() {
@@ -658,6 +760,8 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayerVolumeControl?.visibility = GONE
         videoPlayerProgressBar?.visibility = GONE
         videoControlsBackground?.visibility = VISIBLE
+        videoPlayerPlay?.visibility = VISIBLE
+        videoPlayerRestart?.visibility = GONE
     }
 
     open fun onVideoPlayerSetUiStateAdded() {
@@ -665,5 +769,8 @@ open class RVPRecyclerView : RecyclerView {
 
         videoPlayerProgressBar?.visibility = GONE
         videoPlayerThumbnail?.visibility = GONE
+        videoPlayerMediaContainer?.visibility = VISIBLE
+        videoPlayerPlay?.visibility = GONE
+        videoPlayerRestart?.visibility = GONE
     }
 }

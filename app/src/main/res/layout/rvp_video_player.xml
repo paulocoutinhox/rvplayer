@@ -15,8 +15,3 @@
     app:show_timeout="0"
     app:surface_type="texture_view"
     app:use_controller="true" />
-
-
-
-
-

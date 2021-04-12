@@ -27,8 +27,8 @@ class ListFragment : Fragment(), FragmentLifecycle {
         Logger.d("[ListFragment : onViewCreated]")
 
         list = view.findViewById(R.id.list)
-        list?.autoPlayState = RVPRecyclerView.AutoPlayState.OFF
-        list?.volumeState = RVPRecyclerView.VolumeState.OFF
+        list?.autoPlayState = RVPRecyclerView.AutoPlayState.ON
+        list?.volumeState = RVPRecyclerView.VolumeState.ON
 
         initRecyclerView()
     }
@@ -64,10 +64,10 @@ class ListFragment : Fragment(), FragmentLifecycle {
 
     override fun onResumeFragment() {
         Logger.d("[ListFragment : onResumeFragment]")
-        list?.videoPlayerInitializeSurfaceView()
+        // list?.videoPlayerInitializeSurfaceView()
 
         Handler(Looper.getMainLooper()).post {
-            list?.videoPlayerPlayFirstAvailable(false)
+            // list?.videoPlayerPlayFirstAvailable(false)
         }
     }
 

@@ -57,8 +57,7 @@
                     android:id="@+id/videoPlayerMediaContainer"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@color/grey_300"
-                    android:scaleType="center">
+                    android:background="@color/grey_300">
 
                 </FrameLayout>
 
@@ -97,6 +96,23 @@
                         android:contentDescription="@string/app_name"
                         android:padding="10dp"
                         android:src="@drawable/ic_video_player_volume_on" />
+
+                    <ImageButton
+                        android:id="@+id/videoPlayerRestart"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="60dp"
+                        android:background="@color/transparent"
+                        app:srcCompat="@drawable/ic_video_player_restart" />
+
+                    <ImageButton
+                        android:id="@+id/videoPlayerPlay"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_gravity="center"
+                        android:background="@color/transparent"
+                        app:srcCompat="@drawable/ic_video_player_play" />
 
                     <ProgressBar
                         android:id="@+id/videoPlayerProgressBar"
