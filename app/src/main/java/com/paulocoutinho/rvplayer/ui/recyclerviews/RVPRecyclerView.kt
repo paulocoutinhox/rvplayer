@@ -526,7 +526,6 @@ open class RVPRecyclerView : RecyclerView {
 
     open fun onVideoPlayerStateIsEnded() {
         logDebug("[$className : onVideoPlayerStateIsEnded]")
-        resetVideoView(true)
         onVideoPlayerSetUiStateEnded()
     }
 
@@ -593,7 +592,12 @@ open class RVPRecyclerView : RecyclerView {
 
     open fun onVideoPlayerRestart() {
         logDebug("[$className : onVideoPlayerRestart]")
+
+        onVideoPlayerSetUiStatePlaying()
+
         videoPlayer?.seekToDefaultPosition()
+        videoPlayer?.play()
+        videoPlayer?.playWhenReady = true
     }
 
     open fun onVideoPlayerRelease() {
