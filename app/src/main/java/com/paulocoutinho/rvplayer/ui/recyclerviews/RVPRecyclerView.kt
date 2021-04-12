@@ -681,11 +681,11 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayerVolumeControl?.alpha = 1f
 
         /*
-        // TODO: Animation in breaking the surface view
-        volumeControl?.animate()?.cancel()
-        volumeControl?.alpha = 1f
+        TODO: UNCOMMENT IF FLICK PROBLEM WAS SOLVED AND REMOVE LINE UP
+        videoPlayerVolumeControl?.animate()?.cancel()
+        videoPlayerVolumeControl?.alpha = 1f
 
-        volumeControl
+        videoPlayerVolumeControl
                 ?.animate()
                 ?.alpha(0f)
                 ?.setDuration(600)
