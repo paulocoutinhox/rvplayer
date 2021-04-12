@@ -1,8 +1,6 @@
 package com.paulocoutinho.rvplayer.ui.fragments
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -65,10 +63,6 @@ class ListFragment : Fragment(), FragmentLifecycle {
     override fun onResumeFragment() {
         Logger.d("[ListFragment : onResumeFragment]")
         list?.videoPlayerInitializeSurfaceView()
-
-        Handler(Looper.getMainLooper()).post {
-            // list?.videoPlayerPlayFirstAvailable(false)
-        }
     }
 
     override fun onPauseFragment() {
