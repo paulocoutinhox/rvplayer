@@ -64,7 +64,7 @@ class ListFragment : Fragment(), FragmentLifecycle {
 
     override fun onResumeFragment() {
         Logger.d("[ListFragment : onResumeFragment]")
-        // list?.videoPlayerInitializeSurfaceView()
+        list?.videoPlayerInitializeSurfaceView()
 
         Handler(Looper.getMainLooper()).post {
             // list?.videoPlayerPlayFirstAvailable(false)
