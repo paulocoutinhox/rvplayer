@@ -389,12 +389,12 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayerPlay.setOnClickListener(videoPlayerPlayClickListener)
         videoPlayerRestart.setOnClickListener(videoPlayerRestartClickListener)
 
-        videoPlayerThumbnail.visibility = GONE
-        videoPlayerMediaContainer.visibility = VISIBLE
-        videoPlayerVolumeControl.visibility = VISIBLE
+        videoPlayerThumbnail.visibility = VISIBLE
+        videoPlayerMediaContainer.visibility = GONE
+        videoPlayerVolumeControl.visibility = GONE
         videoPlayerProgressBar.visibility = GONE
-        videoControlsBackground.visibility = GONE
-        videoPlayerPlay.visibility = GONE
+        videoControlsBackground.visibility = VISIBLE
+        videoPlayerPlay.visibility = VISIBLE
         videoPlayerRestart.visibility = GONE
     }
 
