@@ -749,7 +749,7 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayerProgressBar?.visibility = GONE
         videoControlsBackground?.visibility = VISIBLE
         videoPlayerPlay?.visibility = VISIBLE
-        videoPlayerRestart?.visibility = GONE
+        videoPlayerRestart?.visibility = VISIBLE
     }
 
     open fun onVideoPlayerSetUiStateStopped() {
