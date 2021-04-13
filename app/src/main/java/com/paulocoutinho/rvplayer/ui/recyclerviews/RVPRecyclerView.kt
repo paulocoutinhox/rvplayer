@@ -104,6 +104,11 @@ open class RVPRecyclerView : RecyclerView {
         onVideoPlayerThumbnailClick()
     }
 
+    private val videoPlayerControlsBackgroundClickListener = OnClickListener {
+        logDebug("[$className : VideoPlayerControlsBackgroundClickListener]")
+        onVideoPlayerControlsBackgroundClick()
+    }
+
     private val videoPlayerVolumeControlClickListener = OnClickListener {
         logDebug("[$className : videoPlayerVolumeControlClickListener]")
         onVideoPlayerVolumeControlClick()
@@ -328,6 +333,7 @@ open class RVPRecyclerView : RecyclerView {
 
         videoPlayerThumbnail?.setOnClickListener(videoPlayerThumbnailClickListener)
         videoPlayerVolumeControl?.setOnClickListener(videoPlayerVolumeControlClickListener)
+        videoControlsBackground?.setOnClickListener(videoPlayerControlsBackgroundClickListener)
         videoPlayerPlay?.setOnClickListener(videoPlayerPlayClickListener)
         videoPlayerRestart?.setOnClickListener(videoPlayerRestartClickListener)
         viewHolderParent?.setOnClickListener(viewHolderClickListener)
@@ -636,6 +642,11 @@ open class RVPRecyclerView : RecyclerView {
     open fun onVideoPlayerThumbnailClick() {
         logDebug("[$className : onVideoPlayerThumbnailClick]")
         // ignore because it has overlay
+    }
+
+    open fun onVideoPlayerControlsBackgroundClick() {
+        logDebug("[$className : onVideoPlayerControlsBackgroundClick]")
+        onVideoPlayerSetUiStateCheckPlayingOptions()
     }
 
     open fun onVideoPlayerVolumeControlClick() {
