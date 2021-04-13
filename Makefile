@@ -5,6 +5,7 @@ help:
 	@echo ""
 	@echo "- help"
 	@echo "- remove-trash"
+	@echo "- format"
 	@echo ""
 
 remove-trash:

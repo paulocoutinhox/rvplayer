@@ -6,7 +6,6 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.paulocoutinho.rvplayer.Application
@@ -17,24 +16,23 @@ import com.paulocoutinho.rvplayer.models.MediaObject
 class VideoPlayerViewHolder(var parent: View) : RecyclerView.ViewHolder(parent) {
 
     var videoPlayerContainer: FrameLayout = itemView.findViewById(R.id.videoPlayerContainer)
-    var listItemVideoPlayerCardBody: ConstraintLayout = itemView.findViewById(R.id.listItemVideoPlayerCardBody)
     var videoPlayerMediaContainer: FrameLayout = itemView.findViewById(R.id.videoPlayerMediaContainer)
-    var videoControlsBackground: FrameLayout = itemView.findViewById(R.id.videoControlsBackground)
+    var videoPlayerControlsBackground: FrameLayout = itemView.findViewById(R.id.videoPlayerControlsBackground)
     var videoPlayerTitle: TextView = itemView.findViewById(R.id.videoPlayerTitle)
     var videoPlayerThumbnail: ImageView = itemView.findViewById(R.id.videoPlayerThumbnail)
-    var videoPlayerVolumeControl: ImageView = itemView.findViewById(R.id.videoPlayerVolumeControl)
+    var videoPlayerVolumeButton: ImageView = itemView.findViewById(R.id.videoPlayerVolumeButton)
     var videoPlayerProgressBar: ProgressBar = itemView.findViewById(R.id.videoPlayerProgressBar)
-    var videoPlayerPlay: ImageView = itemView.findViewById(R.id.videoPlayerPlay)
-    var videoPlayerRestart: ImageView = itemView.findViewById(R.id.videoPlayerRestart)
+    var videoPlayerPlayButton: ImageView = itemView.findViewById(R.id.videoPlayerPlayButton)
+    var videoPlayerRestartButton: ImageView = itemView.findViewById(R.id.videoPlayerRestartButton)
 
     init {
         videoPlayerThumbnail.visibility = RecyclerView.VISIBLE
         videoPlayerMediaContainer.visibility = RecyclerView.GONE
-        videoPlayerVolumeControl.visibility = RecyclerView.GONE
+        videoPlayerVolumeButton.visibility = RecyclerView.GONE
         videoPlayerProgressBar.visibility = RecyclerView.GONE
-        videoControlsBackground.visibility = RecyclerView.VISIBLE
-        videoPlayerPlay.visibility = RecyclerView.VISIBLE
-        videoPlayerRestart.visibility = RecyclerView.GONE
+        videoPlayerControlsBackground.visibility = RecyclerView.VISIBLE
+        videoPlayerPlayButton.visibility = RecyclerView.VISIBLE
+        videoPlayerRestartButton.visibility = RecyclerView.GONE
     }
 
     fun onBind(mediaObject: MediaObject) {

@@ -77,14 +77,14 @@
                         android:src="@drawable/placeholder" />
 
                     <FrameLayout
-                        android:id="@+id/videoControlsBackground"
+                        android:id="@+id/videoPlayerControlsBackground"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="#99000000"
                         android:visibility="gone" />
 
                     <ImageView
-                        android:id="@+id/videoPlayerVolumeControl"
+                        android:id="@+id/videoPlayerVolumeButton"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_gravity="end|bottom"
@@ -98,7 +98,7 @@
                         android:src="@drawable/ic_video_player_volume_on" />
 
                     <ImageButton
-                        android:id="@+id/videoPlayerRestart"
+                        android:id="@+id/videoPlayerRestartButton"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:layout_gravity="center"
@@ -107,7 +107,7 @@
                         app:srcCompat="@drawable/ic_video_player_restart" />
 
                     <ImageButton
-                        android:id="@+id/videoPlayerPlay"
+                        android:id="@+id/videoPlayerPlayButton"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:layout_gravity="center"

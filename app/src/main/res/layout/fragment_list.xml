@@ -7,7 +7,7 @@
     android:background="#ffffff"
     tools:context=".ui.activities.MainActivity">
 
-    <com.paulocoutinho.rvplayer.ui.recyclerviews.RVPRecyclerView
+    <com.paulocoutinho.rvplayer.ui.recyclerviews.MyRecyclerView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -19,6 +19,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0">
 
-    </com.paulocoutinho.rvplayer.ui.recyclerviews.RVPRecyclerView>
+    </com.paulocoutinho.rvplayer.ui.recyclerviews.MyRecyclerView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

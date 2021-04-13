@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:auto_show="true"
-    app:controller_layout_id="@layout/rvp_video_player_video_controller"
+    app:controller_layout_id="@layout/video_player_video_controller"
     app:fastforward_increment="10000"
     app:hide_on_touch="false"
     app:keep_content_on_player_reset="true"
