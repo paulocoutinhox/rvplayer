@@ -39,7 +39,7 @@ Demo application:
 
 Resources usage (Moto G):
 
-![Resources usage](extras/images/79ae7133-259d-4075-81f4-cec3296a7881.png)
+![Resources usage](extras/images/090b1f8d-f20e-4d80-bb00-b1c6f38dbfe4.png)
 
 ## Contribute
 
