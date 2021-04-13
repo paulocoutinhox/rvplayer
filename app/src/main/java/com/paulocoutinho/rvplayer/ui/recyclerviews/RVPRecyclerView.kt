@@ -58,6 +58,8 @@ open class RVPRecyclerView : RecyclerView {
     open var initialVolumeState: VolumeState = VolumeState.AUTO
     open var autoPlayState: AutoPlayState = AutoPlayState.ON
 
+    open var videoSearchRange = 60.0
+
     private val className = javaClass.simpleName
 
     private var videoPlayerThumbnail: ImageView? = null
@@ -383,11 +385,15 @@ open class RVPRecyclerView : RecyclerView {
         videoPlayerVolumeControl.setOnClickListener(null)
         videoPlayerRestart.setOnClickListener(null)
 
-        videoPlayerPlay.setOnClickListener {
+        videoPlayerThumbnail.setOnClickListener {
             smoothScrollToPosition(position)
         }
 
-        videoPlayerThumbnail.setOnClickListener {
+        videoControlsBackground.setOnClickListener {
+            smoothScrollToPosition(position)
+        }
+
+        videoPlayerPlay.setOnClickListener {
             smoothScrollToPosition(position)
         }
 
@@ -499,7 +505,7 @@ open class RVPRecyclerView : RecyclerView {
         val globalVisibleRect = Rect()
         getGlobalVisibleRect(globalVisibleRect)
 
-        var first100percent = false
+        var videoFound = false
 
         for (pos in firstPosition..lastPosition) {
             val viewHolder = findViewHolderForAdapterPosition(pos)
@@ -507,20 +513,18 @@ open class RVPRecyclerView : RecyclerView {
             (viewHolder as? VideoPlayerViewHolder)?.let { vh ->
                 val percentage = getVisibleHeightPercentage(vh.itemView)
 
-                logDebug("[$className : playFirstVideo] Position: $pos, Percentage: $percentage")
-
-                if (percentage > 60.0 || force) {
-                    if (first100percent) {
-                        logDebug("[$className : playFirstVideo] Option: First 100%")
+                if (percentage >= videoSearchRange || force) {
+                    if (videoFound) {
+                        logDebug("[$className : playFirstVideo] Video already found (position: $pos, percentage: $percentage)")
                         onVideoPlayerReset(vh)
                         onVideoPlayerAttachViewHolder(pos)
                     } else {
-                        logDebug("[$className : playFirstVideo] Option: Not first 100%")
-                        first100percent = true
+                        logDebug("[$className : playFirstVideo] First video found (position: $pos, percentage: $percentage)")
+                        videoFound = true
                         onVideoPlayerPlayFirstAvailable(pos)
                     }
                 } else {
-                    logDebug("[$className : playFirstVideo] Option: Nothing")
+                    logDebug("[$className : playFirstVideo] Out of range (position: $pos, percentage: $percentage)")
                     onVideoPlayerReset(vh)
                     onVideoPlayerAttachViewHolder(pos)
                 }
