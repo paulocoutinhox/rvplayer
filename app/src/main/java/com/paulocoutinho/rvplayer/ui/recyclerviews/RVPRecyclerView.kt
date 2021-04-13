@@ -42,7 +42,7 @@ open class RVPRecyclerView : RecyclerView {
     }
 
     enum class PlayingState {
-        PLAY, PAUSE
+        PLAYING, PAUSED, ENDED
     }
 
     enum class PlayingOptionsState {
@@ -56,7 +56,7 @@ open class RVPRecyclerView : RecyclerView {
     open val videoPlayerDrawablePause: Int = R.drawable.ic_video_player_pause
 
     open var initialVolumeState: VolumeState = VolumeState.AUTO
-    open var autoPlayState: AutoPlayState = AutoPlayState.ON
+    open var autoPlayFirstState: AutoPlayState = AutoPlayState.ON
 
     open var videoSearchRange = 60.0
 
@@ -84,8 +84,10 @@ open class RVPRecyclerView : RecyclerView {
     private var mediaEnded = false
     private var mediaLoaded = false
 
-    private var playingState = PlayingState.PLAY
+    private var playingState = PlayingState.PLAYING
     private var playingOptionsState = PlayingOptionsState.OFF
+
+    private var positionOfAutoPlayFirst = -1
 
     private val viewHolderClickListener = OnClickListener {
         logDebug("[$className : ViewHolderClickListener]")
@@ -174,10 +176,7 @@ open class RVPRecyclerView : RecyclerView {
 
                 firstScroll = false
 
-                // auto play
-                if (autoPlayState == AutoPlayState.ON) {
-                    videoPlayerPlayFirstAvailable(false)
-                }
+                videoPlayerPlayFirstAvailable(false)
             } else {
                 logDebug("[$className : onScrolled] Ignored")
             }
@@ -285,7 +284,7 @@ open class RVPRecyclerView : RecyclerView {
         logDebug("[$className : playVideo] Position: $position")
 
         // set state
-        playingState = PlayingState.PLAY
+        playingState = PlayingState.PLAYING
 
         // video is already playing so return
         if (position == playPosition) {
@@ -520,11 +519,35 @@ open class RVPRecyclerView : RecyclerView {
                         onVideoPlayerAttachViewHolder(pos)
                     } else {
                         logDebug("[$className : playFirstVideo] First video found (position: $pos, percentage: $percentage)")
-                        videoFound = true
-                        onVideoPlayerPlayFirstAvailable(pos)
+
+                        if (autoPlayFirstState == AutoPlayState.ON) {
+                            videoFound = true
+                            onVideoPlayerPlayFirstAvailable(pos)
+                        } else {
+                            if (positionOfAutoPlayFirst == -1 || positionOfAutoPlayFirst == pos) {
+                                positionOfAutoPlayFirst = pos
+
+                                videoFound = true
+
+                                logDebug("[$className : playFirstVideo] First video found but ignored (position: $pos, percentage: $percentage)")
+
+                                onVideoPlayerReset(vh)
+                                onVideoPlayerAttachViewHolder(pos)
+                            } else {
+                                videoFound = true
+                                onVideoPlayerPlayFirstAvailable(pos)
+                            }
+                        }
                     }
                 } else {
                     logDebug("[$className : playFirstVideo] Out of range (position: $pos, percentage: $percentage)")
+
+                    if (autoPlayFirstState == AutoPlayState.OFF) {
+                        if (positionOfAutoPlayFirst == pos) {
+                            positionOfAutoPlayFirst = -2
+                        }
+                    }
+
                     onVideoPlayerReset(vh)
                     onVideoPlayerAttachViewHolder(pos)
                 }
@@ -583,13 +606,20 @@ open class RVPRecyclerView : RecyclerView {
 
     open fun onVideoPlayerStateIsEnded() {
         logDebug("[$className : onVideoPlayerStateIsEnded]")
+
         mediaEnded = true
+        playingState = PlayingState.ENDED
+
         onVideoPlayerSetUiStateEnded()
     }
 
     open fun onVideoPlayerStateIsError(error: ExoPlaybackException) {
         logDebug("[$className : onVideoPlayerStateIsError]")
+
         resetVideoView(true)
+
+        playingState = PlayingState.ENDED
+
         onVideoPlayerSetUiStateError()
     }
 
@@ -616,10 +646,13 @@ open class RVPRecyclerView : RecyclerView {
     open fun onVideoPlayerPlayClick() {
         logDebug("[$className : onVideoPlayerPlayClick]")
 
-        if (playingState == PlayingState.PLAY) {
-            onVideoPlayerPause()
-        } else if (playingState == PlayingState.PAUSE) {
-            onVideoPlayerPlay()
+        when (playingState) {
+            PlayingState.PLAYING -> {
+                onVideoPlayerPause()
+            }
+            PlayingState.PAUSED, PlayingState.ENDED -> {
+                onVideoPlayerPlay()
+            }
         }
     }
 
@@ -637,7 +670,7 @@ open class RVPRecyclerView : RecyclerView {
         logDebug("[$className : onVideoPlayerPause]")
 
         videoPlayer?.playWhenReady = false
-        playingState = PlayingState.PAUSE
+        playingState = PlayingState.PAUSED
 
         onVideoPlayerSetUiStatePlayingOptions()
     }
@@ -653,7 +686,7 @@ open class RVPRecyclerView : RecyclerView {
                 videoPlayer?.play()
                 videoPlayer?.playWhenReady = true
 
-                playingState = PlayingState.PLAY
+                playingState = PlayingState.PLAYING
             }
             mediaLoaded -> {
                 onVideoPlayerSetUiStatePlaying()
@@ -661,7 +694,7 @@ open class RVPRecyclerView : RecyclerView {
                 videoPlayer?.play()
                 videoPlayer?.playWhenReady = true
 
-                playingState = PlayingState.PLAY
+                playingState = PlayingState.PLAYING
             }
             else -> {
                 videoPlayerPlayFirstAvailable(true)
@@ -680,7 +713,7 @@ open class RVPRecyclerView : RecyclerView {
                 videoPlayer?.play()
                 videoPlayer?.playWhenReady = true
 
-                playingState = PlayingState.PLAY
+                playingState = PlayingState.PLAYING
             }
             mediaLoaded -> {
                 onVideoPlayerSetUiStatePlaying()
@@ -689,7 +722,7 @@ open class RVPRecyclerView : RecyclerView {
                 videoPlayer?.play()
                 videoPlayer?.playWhenReady = true
 
-                playingState = PlayingState.PLAY
+                playingState = PlayingState.PLAYING
             }
             else -> {
                 videoPlayerPlayFirstAvailable(true)
@@ -757,17 +790,22 @@ open class RVPRecyclerView : RecyclerView {
         logDebug("[$className : onVideoPlayerChangeVolumeControlImage]")
 
         val imageTag = videoPlayerVolumeControl?.tag ?: -1
-        val volumeState = getVolumeStateByVolumeValue()
 
-        if (volumeState == VolumeState.ON) {
-            if (imageTag != 1) {
-                videoPlayerVolumeControl?.tag = 1
-                videoPlayerVolumeControl?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawableVolumeOn))
+        when (getVolumeStateByVolumeValue()) {
+            VolumeState.ON -> {
+                if (imageTag != 1) {
+                    videoPlayerVolumeControl?.tag = 1
+                    videoPlayerVolumeControl?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawableVolumeOn))
+                }
             }
-        } else if (volumeState == VolumeState.OFF) {
-            if (imageTag != 2) {
-                videoPlayerVolumeControl?.tag = 2
-                videoPlayerVolumeControl?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawableVolumeOff))
+            VolumeState.OFF -> {
+                if (imageTag != 2) {
+                    videoPlayerVolumeControl?.tag = 2
+                    videoPlayerVolumeControl?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawableVolumeOff))
+                }
+            }
+            else -> {
+                // ignore
             }
         }
     }
@@ -777,15 +815,18 @@ open class RVPRecyclerView : RecyclerView {
 
         val imageTag = videoPlayerPlay?.tag ?: -1
 
-        if (playingState == PlayingState.PLAY) {
-            if (imageTag != 1) {
-                videoPlayerPlay?.tag = 1
-                videoPlayerPlay?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawablePause))
+        when (playingState) {
+            PlayingState.PLAYING -> {
+                if (imageTag != 1) {
+                    videoPlayerPlay?.tag = 1
+                    videoPlayerPlay?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawablePause))
+                }
             }
-        } else if (playingState == PlayingState.PAUSE) {
-            if (imageTag != 2) {
-                videoPlayerPlay?.tag = 2
-                videoPlayerPlay?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawablePlay))
+            PlayingState.PAUSED, PlayingState.ENDED -> {
+                if (imageTag != 2) {
+                    videoPlayerPlay?.tag = 2
+                    videoPlayerPlay?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawablePlay))
+                }
             }
         }
     }
@@ -793,14 +834,20 @@ open class RVPRecyclerView : RecyclerView {
     open fun onVideoPlayerChangeVolume(state: VolumeState) {
         logDebug("[$className : onVideoPlayerChangeVolume]")
 
-        if (state == VolumeState.ON) {
-            videoPlayer?.volume = 1f
-            onVideoPlayerChangeVolumeControlImage()
-            onVideoPlayerAnimateVolumeControl()
-        } else if (state == VolumeState.OFF) {
-            videoPlayer?.volume = 0f
-            onVideoPlayerChangeVolumeControlImage()
-            onVideoPlayerAnimateVolumeControl()
+        when (state) {
+            VolumeState.ON -> {
+                videoPlayer?.volume = 1f
+                onVideoPlayerChangeVolumeControlImage()
+                onVideoPlayerAnimateVolumeControl()
+            }
+            VolumeState.OFF -> {
+                videoPlayer?.volume = 0f
+                onVideoPlayerChangeVolumeControlImage()
+                onVideoPlayerAnimateVolumeControl()
+            }
+            else -> {
+                // ignore
+            }
         }
     }
 
@@ -921,9 +968,13 @@ open class RVPRecyclerView : RecyclerView {
     open fun onVideoPlayerSetUiStateCheckPlayingOptions() {
         logDebug("[$className : onVideoPlayerSetUiStateCheckPlayingOptions]")
 
-        if (playingOptionsState == PlayingOptionsState.ON) {
-            onVideoPlayerSetUiStatePlaying()
-        } else if (playingOptionsState == PlayingOptionsState.OFF) {
+        if (playingState == PlayingState.PLAYING) {
+            if (playingOptionsState == PlayingOptionsState.ON) {
+                onVideoPlayerSetUiStatePlaying()
+            } else if (playingOptionsState == PlayingOptionsState.OFF) {
+                onVideoPlayerSetUiStatePlayingOptions()
+            }
+        } else {
             onVideoPlayerSetUiStatePlayingOptions()
         }
     }

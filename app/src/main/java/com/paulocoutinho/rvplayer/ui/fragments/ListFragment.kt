@@ -25,7 +25,7 @@ class ListFragment : Fragment(), FragmentLifecycle {
         Logger.d("[ListFragment : onViewCreated]")
 
         list = view.findViewById(R.id.list)
-        list?.autoPlayState = RVPRecyclerView.AutoPlayState.OFF
+        list?.autoPlayFirstState = RVPRecyclerView.AutoPlayState.ON
         list?.initialVolumeState = RVPRecyclerView.VolumeState.AUTO
 
         initRecyclerView()
