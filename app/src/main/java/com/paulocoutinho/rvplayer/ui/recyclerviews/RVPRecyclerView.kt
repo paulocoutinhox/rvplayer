@@ -380,10 +380,16 @@ open class RVPRecyclerView : RecyclerView {
         val videoPlayerMediaContainer = holder.videoPlayerMediaContainer
         val videoControlsBackground = holder.videoControlsBackground
 
-        videoPlayerThumbnail.setOnClickListener(videoPlayerThumbnailClickListener)
-        videoPlayerVolumeControl.setOnClickListener(videoPlayerVolumeControlClickListener)
-        videoPlayerPlay.setOnClickListener(videoPlayerPlayClickListener)
-        videoPlayerRestart.setOnClickListener(videoPlayerRestartClickListener)
+        videoPlayerVolumeControl.setOnClickListener(null)
+        videoPlayerRestart.setOnClickListener(null)
+
+        videoPlayerPlay.setOnClickListener {
+            smoothScrollToPosition(position)
+        }
+
+        videoPlayerThumbnail.setOnClickListener {
+            smoothScrollToPosition(position)
+        }
 
         videoPlayerThumbnail.visibility = VISIBLE
         videoPlayerMediaContainer.visibility = GONE
@@ -392,6 +398,9 @@ open class RVPRecyclerView : RecyclerView {
         videoControlsBackground.visibility = VISIBLE
         videoPlayerPlay.visibility = VISIBLE
         videoPlayerRestart.visibility = GONE
+
+        videoPlayerPlay.tag = 2
+        videoPlayerPlay.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawablePlay))
     }
 
     private fun logDebug(message: String) {
