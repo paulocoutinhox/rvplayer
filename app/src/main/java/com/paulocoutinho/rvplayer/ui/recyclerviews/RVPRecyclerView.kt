@@ -176,7 +176,7 @@ open class RVPRecyclerView : RecyclerView {
 
                 firstScroll = false
 
-                videoPlayerPlayFirstAvailable(false)
+                videoPlayerPlayFirstAvailable(true)
             } else {
                 logDebug("[$className : onScrolled] Ignored")
             }
@@ -1006,6 +1006,7 @@ open class RVPRecyclerView : RecyclerView {
 
         videoPlayerSurfaceView?.player = null
         videoPlayer = null
+        playingState = PlayingState.ENDED
     }
 
     open fun onVideoPlayerSystemRestart() {
@@ -1016,5 +1017,10 @@ open class RVPRecyclerView : RecyclerView {
 
         // volume
         videoPlayerCheckInitialVolumeState()
+
+        // check if have first video
+        if (playingState != PlayingState.PLAYING) {
+            videoPlayerPlayFirstAvailable(false)
+        }
     }
 }
