@@ -35,7 +35,7 @@ adb install app-signed.apk
 
 Demo application:
 
-![Demo application](extras/images/9d301729-199a-4c69-861b-092379795c6e.png)
+![Demo application](extras/images/4b7e4fb2-8922-4f95-8263-c6e9e8799ecd.png)
 
 Resources usage (Moto G):
 
