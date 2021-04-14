@@ -370,11 +370,6 @@ open class RVPRecyclerView<T> : RecyclerView {
     private fun attachVideoHolder(position: Int) {
         logDebug("[$className : attachVideoHolder] Position: $position")
 
-        // video is already playing so return
-        if (position == playPosition) {
-            return
-        }
-
         val lm = (layoutManager as LinearLayoutManager)
         val currentPosition = position - lm.findFirstVisibleItemPosition()
         val child = getChildAt(currentPosition) ?: return
@@ -404,15 +399,23 @@ open class RVPRecyclerView<T> : RecyclerView {
         videoPlayerRestartButton?.setOnClickListener(null)
 
         videoPlayerThumbnail?.setOnClickListener {
+            logDebug("[$className : VideoPlayerThumbnailClickListener]")
             smoothScrollToPosition(position)
         }
 
         videoPlayerControlsBackground?.setOnClickListener {
+            logDebug("[$className : VideoPlayerControlsBackgroundClickListener]")
             smoothScrollToPosition(position)
         }
 
         videoPlayerPlayButton?.setOnClickListener {
+            logDebug("[$className : VideoPlayerPlayButtonClickListener]")
+
+            positionOfAutoPlayFirst = -2
+
+            attachVideoHolder(playPosition)
             smoothScrollToPosition(position)
+            onVideoPlayerPlayFirstAvailable(position)
         }
 
         videoPlayerThumbnail?.visibility = VISIBLE
@@ -836,19 +839,26 @@ open class RVPRecyclerView<T> : RecyclerView {
         }
     }
 
-    open fun onVideoPlayerChangePlayingImage() {
+    open fun onVideoPlayerChangePlayingImage(forcePlayingState: PlayingState? = null) {
         logDebug("[$className : onVideoPlayerChangePlayingImage]")
 
         val imageTag = videoPlayerPlayButton?.tag ?: -1
 
-        when (playingState) {
-            PlayingState.PLAYING -> {
+        if (forcePlayingState != null) {
+            if (forcePlayingState == PlayingState.PLAYING) {
+                videoPlayerPlayButton?.tag = 1
+                videoPlayerPlayButton?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawablePause))
+            } else if (forcePlayingState == PlayingState.PAUSED || forcePlayingState == PlayingState.ENDED) {
+                videoPlayerPlayButton?.tag = 2
+                videoPlayerPlayButton?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawablePlay))
+            }
+        } else {
+            if (playingState == PlayingState.PLAYING) {
                 if (imageTag != 1) {
                     videoPlayerPlayButton?.tag = 1
                     videoPlayerPlayButton?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawablePause))
                 }
-            }
-            PlayingState.PAUSED, PlayingState.ENDED -> {
+            } else if (playingState == PlayingState.PAUSED || playingState == PlayingState.ENDED) {
                 if (imageTag != 2) {
                     videoPlayerPlayButton?.tag = 2
                     videoPlayerPlayButton?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawablePlay))
@@ -880,7 +890,7 @@ open class RVPRecyclerView<T> : RecyclerView {
     open fun onVideoPlayerSetUiStateDefault() {
         logDebug("[$className : onVideoPlayerSetUiStateDefault]")
 
-        onVideoPlayerChangePlayingImage()
+        onVideoPlayerChangePlayingImage(PlayingState.ENDED)
 
         videoPlayerThumbnail?.visibility = VISIBLE
         videoPlayerMediaContainer?.visibility = GONE
