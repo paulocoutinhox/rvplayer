@@ -427,7 +427,12 @@ open class RVPRecyclerView<T> : RecyclerView {
         videoPlayerRestartButton?.visibility = GONE
 
         videoPlayerPlayButton?.tag = 2
-        videoPlayerPlayButton?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawablePlay))
+        videoPlayerPlayButton?.setImageDrawable(
+            ContextCompat.getDrawable(
+                context,
+                videoPlayerDrawablePlay
+            )
+        )
     }
 
     private fun logDebug(message: String) {
@@ -692,7 +697,12 @@ open class RVPRecyclerView<T> : RecyclerView {
 
     open fun onVideoPlayerStop() {
         logDebug("[$className : onVideoPlayerStop]")
+
         videoPlayer?.stop()
+        playPosition = -1
+        playingState = PlayingState.ENDED
+
+        onVideoPlayerSetUiStateStopped()
     }
 
     open fun onVideoPlayerPause() {
@@ -824,13 +834,23 @@ open class RVPRecyclerView<T> : RecyclerView {
             VolumeState.ON -> {
                 if (imageTag != 1) {
                     videoPlayerVolumeButton?.tag = 1
-                    videoPlayerVolumeButton?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawableVolumeOn))
+                    videoPlayerVolumeButton?.setImageDrawable(
+                        ContextCompat.getDrawable(
+                            context,
+                            videoPlayerDrawableVolumeOn
+                        )
+                    )
                 }
             }
             VolumeState.OFF -> {
                 if (imageTag != 2) {
                     videoPlayerVolumeButton?.tag = 2
-                    videoPlayerVolumeButton?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawableVolumeOff))
+                    videoPlayerVolumeButton?.setImageDrawable(
+                        ContextCompat.getDrawable(
+                            context,
+                            videoPlayerDrawableVolumeOff
+                        )
+                    )
                 }
             }
             else -> {
@@ -847,21 +867,41 @@ open class RVPRecyclerView<T> : RecyclerView {
         if (forcePlayingState != null) {
             if (forcePlayingState == PlayingState.PLAYING) {
                 videoPlayerPlayButton?.tag = 1
-                videoPlayerPlayButton?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawablePause))
+                videoPlayerPlayButton?.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        context,
+                        videoPlayerDrawablePause
+                    )
+                )
             } else if (forcePlayingState == PlayingState.PAUSED || forcePlayingState == PlayingState.ENDED) {
                 videoPlayerPlayButton?.tag = 2
-                videoPlayerPlayButton?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawablePlay))
+                videoPlayerPlayButton?.setImageDrawable(
+                    ContextCompat.getDrawable(
+                        context,
+                        videoPlayerDrawablePlay
+                    )
+                )
             }
         } else {
             if (playingState == PlayingState.PLAYING) {
                 if (imageTag != 1) {
                     videoPlayerPlayButton?.tag = 1
-                    videoPlayerPlayButton?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawablePause))
+                    videoPlayerPlayButton?.setImageDrawable(
+                        ContextCompat.getDrawable(
+                            context,
+                            videoPlayerDrawablePause
+                        )
+                    )
                 }
             } else if (playingState == PlayingState.PAUSED || playingState == PlayingState.ENDED) {
                 if (imageTag != 2) {
                     videoPlayerPlayButton?.tag = 2
-                    videoPlayerPlayButton?.setImageDrawable(ContextCompat.getDrawable(context, videoPlayerDrawablePlay))
+                    videoPlayerPlayButton?.setImageDrawable(
+                        ContextCompat.getDrawable(
+                            context,
+                            videoPlayerDrawablePlay
+                        )
+                    )
                 }
             }
         }
@@ -964,7 +1004,7 @@ open class RVPRecyclerView<T> : RecyclerView {
     open fun onVideoPlayerSetUiStateStopped() {
         logDebug("[$className : onVideoPlayerSetUiStateStopped]")
 
-        onVideoPlayerChangePlayingImage()
+        onVideoPlayerChangePlayingImage(PlayingState.ENDED)
 
         videoPlayerThumbnail?.visibility = VISIBLE
         videoPlayerMediaContainer?.visibility = GONE
