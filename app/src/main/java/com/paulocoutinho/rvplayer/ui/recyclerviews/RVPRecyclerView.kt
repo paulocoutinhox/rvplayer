@@ -698,7 +698,9 @@ open class RVPRecyclerView<T> : RecyclerView {
     open fun onVideoPlayerStop() {
         logDebug("[$className : onVideoPlayerStop]")
 
+        videoPlayer?.seekToDefaultPosition()
         videoPlayer?.stop()
+
         playPosition = -1
         playingState = PlayingState.ENDED
 
