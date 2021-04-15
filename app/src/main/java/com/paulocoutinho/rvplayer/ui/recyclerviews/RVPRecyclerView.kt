@@ -173,6 +173,18 @@ open class RVPRecyclerView<T> : RecyclerView {
             if (newState == SCROLL_STATE_IDLE) {
                 logDebug("[$className : onScrollStateChanged] New state: $newState")
                 videoPlayerPlayFirstAvailable(false)
+
+                if (viewHolderParent != null) {
+                    val lm = (layoutManager as LinearLayoutManager)
+                    val currentPosition = playPosition - lm.findFirstVisibleItemPosition()
+                    val child = getChildAt(currentPosition)
+
+                    if (child == null) {
+                        // playing cell is active but not visible
+                        logDebug("[$className : onScrollStateChanged] Active item is not visible")
+                        videoPlayerStop()
+                    }
+                }
             }
         }
 
