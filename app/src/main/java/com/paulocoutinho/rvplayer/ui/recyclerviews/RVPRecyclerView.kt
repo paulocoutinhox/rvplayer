@@ -179,16 +179,12 @@ open class RVPRecyclerView<T> : RecyclerView {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
 
-            logDebug("[$className : onScrolled]")
-
             if (firstScroll) {
                 logDebug("[$className : onScrolled] First scroll")
 
                 firstScroll = false
 
                 videoPlayerPlayFirstAvailable(true)
-            } else {
-                logDebug("[$className : onScrolled] Ignored")
             }
         }
     }
