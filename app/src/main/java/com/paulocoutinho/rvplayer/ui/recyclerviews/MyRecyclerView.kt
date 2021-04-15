@@ -50,6 +50,10 @@ open class MyRecyclerView : RVPRecyclerView<MediaObject> {
         return item.mediaUrl ?: ""
     }
 
+    override fun hasMediaAutoPlay(item: MediaObject): Boolean {
+        return item.autoPlay ?: false
+    }
+
     override fun isVideoPlayerViewHolder(viewHolder: ViewHolder?): Boolean {
         return (viewHolder is VideoPlayerViewHolder)
     }

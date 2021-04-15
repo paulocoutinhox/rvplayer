@@ -558,7 +558,12 @@ open class RVPRecyclerView<T> : RecyclerView {
 
                             if (autoPlayFirstState == AutoPlayState.ON) {
                                 videoFound = true
-                                onVideoPlayerPlayFirstAvailable(pos)
+
+                                if (hasMediaAutoPlay(objectList[pos])) {
+                                    onVideoPlayerPlayFirstAvailable(pos)
+                                } else {
+                                    onVideoPlayerAttachViewHolder(pos)
+                                }
                             } else {
                                 if (positionOfAutoPlayFirst == -1 || positionOfAutoPlayFirst == pos) {
                                     positionOfAutoPlayFirst = pos
@@ -571,7 +576,10 @@ open class RVPRecyclerView<T> : RecyclerView {
                                     onVideoPlayerAttachViewHolder(pos)
                                 } else {
                                     videoFound = true
-                                    onVideoPlayerPlayFirstAvailable(pos)
+
+                                    if (hasMediaAutoPlay(objectList[pos])) {
+                                        onVideoPlayerPlayFirstAvailable(pos)
+                                    }
                                 }
                             }
                         }
@@ -1120,6 +1128,10 @@ open class RVPRecyclerView<T> : RecyclerView {
 
     open fun getMediaURL(item: T): String {
         return ""
+    }
+
+    open fun hasMediaAutoPlay(item: T): Boolean {
+        return false
     }
 
     open fun isVideoPlayerViewHolder(viewHolder: ViewHolder?): Boolean {
