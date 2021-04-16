@@ -172,6 +172,7 @@ open class RVPRecyclerView<T> : RecyclerView {
 
             if (newState == SCROLL_STATE_IDLE) {
                 logDebug("[$className : onScrollStateChanged] New state: $newState")
+
                 videoPlayerPlayFirstAvailable(false)
 
                 if (viewHolderParent != null) {

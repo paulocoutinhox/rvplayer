@@ -19,6 +19,7 @@ class ListFragment : Fragment(), FragmentLifecycle {
 
     private var list: MyRecyclerView? = null
     private var adapter: RVPRecyclerAdapter? = null
+    private var listStarted = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -53,7 +54,6 @@ class ListFragment : Fragment(), FragmentLifecycle {
 
         adapter = RVPRecyclerAdapter(mediaObjects)
         list?.adapter = adapter
-
         list?.videoPlayerSystemStart()
     }
 
@@ -71,7 +71,13 @@ class ListFragment : Fragment(), FragmentLifecycle {
 
     override fun onResumeFragment() {
         Logger.d("[ListFragment : onResumeFragment]")
-        list?.videoPlayerSystemRestart()
+
+        if (listStarted) {
+            list?.videoPlayerSystemRestart()
+        } else {
+            listStarted = true
+            list?.videoPlayerSystemStart()
+        }
     }
 
     override fun onPauseFragment() {
