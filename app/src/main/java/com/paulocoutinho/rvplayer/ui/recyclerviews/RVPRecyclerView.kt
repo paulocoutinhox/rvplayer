@@ -967,27 +967,36 @@ open class RVPRecyclerView<T> : RecyclerView {
 
         playingOptionsState = PlayingOptionsState.OFF
 
-        videoPlayerThumbnail?.visibility = GONE
-        videoPlayerMediaContainer?.visibility = VISIBLE
-        videoPlayerVolumeButton?.visibility = GONE
-        videoPlayerProgressBar?.visibility = GONE
-        videoPlayerControlsBackground?.visibility = GONE
-        videoPlayerPlayButton?.visibility = GONE
-        videoPlayerRestartButton?.visibility = GONE
+// TODO: REMOVER
+//        videoPlayerThumbnail?.visibility = GONE
+//        videoPlayerMediaContainer?.visibility = VISIBLE
+//        videoPlayerVolumeButton?.visibility = GONE
+//        videoPlayerProgressBar?.visibility = GONE
+//        videoPlayerControlsBackground?.visibility = GONE
+//        videoPlayerPlayButton?.visibility = GONE
+//        videoPlayerRestartButton?.visibility = GONE
     }
 
     open fun onVideoPlayerSetUiStateBuffering() {
         logDebug("[$className : onVideoPlayerSetUiStateBuffering]")
 
         videoPlayerProgressBar?.visibility = VISIBLE
+        videoPlayerThumbnail?.visibility = VISIBLE
+        videoPlayerMediaContainer?.visibility = GONE
+        videoPlayerVolumeButton?.visibility = GONE
+        videoPlayerControlsBackground?.visibility = VISIBLE
+        videoPlayerPlayButton?.visibility = GONE
+        videoPlayerRestartButton?.visibility = GONE
     }
 
     open fun onVideoPlayerSetUiStateIsReady() {
         logDebug("[$className : onVideoPlayerSetUiStateIsReady]")
 
-        videoPlayerProgressBar?.visibility = GONE
         videoPlayerThumbnail?.visibility = GONE
         videoPlayerMediaContainer?.visibility = VISIBLE
+        videoPlayerVolumeButton?.visibility = GONE
+        videoPlayerProgressBar?.visibility = GONE
+        videoPlayerControlsBackground?.visibility = GONE
         videoPlayerPlayButton?.visibility = GONE
         videoPlayerRestartButton?.visibility = GONE
     }

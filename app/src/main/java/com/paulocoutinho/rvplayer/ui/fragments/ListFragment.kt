@@ -57,16 +57,16 @@ class ListFragment : Fragment(), FragmentLifecycle {
         list?.videoPlayerSystemStart()
     }
 
-    override fun onDestroy() {
-        Logger.d("[ListFragment : onDestroy]")
-        list?.videoPlayerSystemStop()
-        super.onDestroy()
+    override fun onPause() {
+        Logger.d("[ListFragment : onPause]")
+        onPauseFragment()
+        super.onPause()
     }
 
-    override fun onStop() {
-        Logger.d("[ListFragment : onStop]")
-        list?.videoPlayerPause()
-        super.onStop()
+    override fun onResume() {
+        Logger.d("[ListFragment : onResume]")
+        super.onResume()
+        onResumeFragment()
     }
 
     override fun onResumeFragment() {
