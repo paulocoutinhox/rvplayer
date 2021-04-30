@@ -367,7 +367,7 @@ open class RVPRecyclerView<T> : RecyclerView {
         videoPlayer?.setMediaSource(mediaSource)
         videoPlayer?.prepare()
         videoPlayer?.repeatMode = Player.REPEAT_MODE_OFF
-        videoPlayer?.playWhenReady = true
+        videoPlayer?.playWhenReady = false
 
         mediaEnded = false
         mediaLoaded = true
@@ -636,13 +636,19 @@ open class RVPRecyclerView<T> : RecyclerView {
     }
 
     open fun onVideoPlayerStateIsReady() {
-        logDebug("[$className : onVideoPlayerStateIsReady]")
+        logDebug("[$className : onVideoPlayerStateIsReady] Playing state: $playingState")
 
-        if (!isVideoViewAdded) {
-            addVideoView()
+        if (videoPlayer == null) {
+            videoPlayerStop()
+        } else {
+            if (!isVideoViewAdded) {
+                addVideoView()
+            }
+
+            onVideoPlayerSetUiStateIsReady()
+
+            videoPlayer?.play()
         }
-
-        onVideoPlayerSetUiStateIsReady()
     }
 
     open fun onVideoPlayerStateIsBuffering() {
@@ -742,7 +748,7 @@ open class RVPRecyclerView<T> : RecyclerView {
 
                 videoPlayer?.seekToDefaultPosition()
                 videoPlayer?.play()
-                videoPlayer?.playWhenReady = true
+                videoPlayer?.playWhenReady = false
 
                 playingState = PlayingState.PLAYING
             }
@@ -750,7 +756,7 @@ open class RVPRecyclerView<T> : RecyclerView {
                 onVideoPlayerSetUiStatePlaying()
 
                 videoPlayer?.play()
-                videoPlayer?.playWhenReady = true
+                videoPlayer?.playWhenReady = false
 
                 playingState = PlayingState.PLAYING
             }
@@ -769,7 +775,7 @@ open class RVPRecyclerView<T> : RecyclerView {
 
                 videoPlayer?.seekToDefaultPosition()
                 videoPlayer?.play()
-                videoPlayer?.playWhenReady = true
+                videoPlayer?.playWhenReady = false
 
                 playingState = PlayingState.PLAYING
             }
@@ -778,7 +784,7 @@ open class RVPRecyclerView<T> : RecyclerView {
 
                 videoPlayer?.seekToDefaultPosition()
                 videoPlayer?.play()
-                videoPlayer?.playWhenReady = true
+                videoPlayer?.playWhenReady = false
 
                 playingState = PlayingState.PLAYING
             }
@@ -966,15 +972,6 @@ open class RVPRecyclerView<T> : RecyclerView {
         onVideoPlayerChangePlayingImage()
 
         playingOptionsState = PlayingOptionsState.OFF
-
-// TODO: REMOVER
-//        videoPlayerThumbnail?.visibility = GONE
-//        videoPlayerMediaContainer?.visibility = VISIBLE
-//        videoPlayerVolumeButton?.visibility = GONE
-//        videoPlayerProgressBar?.visibility = GONE
-//        videoPlayerControlsBackground?.visibility = GONE
-//        videoPlayerPlayButton?.visibility = GONE
-//        videoPlayerRestartButton?.visibility = GONE
     }
 
     open fun onVideoPlayerSetUiStateBuffering() {
@@ -1105,8 +1102,8 @@ open class RVPRecyclerView<T> : RecyclerView {
     open fun onVideoPlayerSystemStop() {
         logDebug("[$className : onVideoPlayerSystemStop]")
 
+        videoPlayerStop()
         resetVideoView(false)
-        onVideoPlayerSetUiStateStopped()
 
         videoPlayerSurfaceView?.player = null
         videoPlayer = null
